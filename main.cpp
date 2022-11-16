@@ -2,6 +2,7 @@
 #include "cryptopp/sha.h"
 #include "cryptopp/filters.h"
 #include "cryptopp/base64.h"
+#include "elgamal.h"
 
 std::string SHA256HashString(std::string aString){
     std::string digest;
@@ -18,5 +19,7 @@ std::string SHA256HashString(std::string aString){
 int main() {
     std::cout << "Hello, World!" << std::endl;
     std::cout << SHA256HashString("helloworld") << std::endl;
+
+    elgamal::elgamalmeme();
     return 0;
 }
