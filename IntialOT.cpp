@@ -25,6 +25,7 @@ tuple<Integer, Integer,Integer>* IntialOT::Alice::genPKArray(int keySize) {
     if (bitVal == 0){
         pkArr[0] = {mod, g,h};
         pkArr[1] = {get<0>(ogenVals),get<1>(ogenVals) ,get<2>(ogenVals)};
+
     } else{
         pkArr[0] = {get<0>(ogenVals),get<1>(ogenVals) ,get<2>(ogenVals)};
         pkArr[1] = {mod, g,h};
@@ -50,7 +51,7 @@ string* IntialOT::Bob::receivePKArray(tuple<Integer, Integer,Integer> *pkArray) 
     string* cipherArr= new string[2];
 
     cipherArr[0] = elgamal::Encrypt(str0, get<0>(pkArray[0]), get<1>(pkArray[0]), get<2>(pkArray[0]));
-    cipherArr[1] = elgamal::Encrypt(str0, get<0>(pkArray[1]), get<1>(pkArray[1]), get<2>(pkArray[1]));
+    cipherArr[1] = elgamal::Encrypt(str1, get<0>(pkArray[1]), get<1>(pkArray[1]), get<2>(pkArray[1]));
 
     return cipherArr;
 }
