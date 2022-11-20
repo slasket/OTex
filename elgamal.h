@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <cryptopp/integer.h>
 #include "cryptopp./elgamal.h"
 #include "cryptopp./osrng.h"
 #include "cassert"
@@ -21,9 +22,9 @@ public:
 
     static tuple<Integer, Integer> OGen(const Integer& mod, int keySize);
 
+    static string Encrypt(string msg, const CryptoPP::Integer &mod, const CryptoPP::Integer &g, const CryptoPP::Integer &h);
 
-
-
+    static string Decrypt(string cipher, const Integer &mod, const Integer &g, const Integer &x);
 };
 
 #endif //OTEX_ELGAMAL_H

@@ -22,11 +22,15 @@ int main() {
     ElGamal::PublicKey publicKey;
     publicKey.AssignFrom(privateKey);
     tuple<Integer, Integer> ogenStuff = elgamal::OGen(privateKey.GetGroupParameters().GetModulus(), 128);
-    //cout <<  << endl;
-
-    //cout << publicKey.GetGroupParameters().GetGenerator() << endl;
-    //cout << get<0>(ogenStuff) << endl;
-    //cout << publicKey.GetPublicElement() << endl;
-    //cout << get<1>(ogenStuff) << endl;
+    string c = elgamal::Encrypt("banan",
+                                   publicKey.GetGroupParameters().GetModulus(),
+                                   publicKey.GetGroupParameters().GetGenerator(),
+                                   publicKey.GetPublicElement());
+    cout << c << endl;
+    string d = elgamal::Decrypt(c,
+                                   privateKey.GetGroupParameters().GetModulus(),
+                                   privateKey.GetGroupParameters().GetGenerator(),
+                                   privateKey.GetPrivateExponent());
+    cout << d << endl;
     return 0;
 }
