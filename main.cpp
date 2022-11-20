@@ -3,6 +3,7 @@
 #include "cryptopp/filters.h"
 #include "cryptopp/base64.h"
 #include "elgamal.h"
+#include "cryptopp/nbtheory.h"
 
 std::string SHA256HashString(std::string aString){
     std::string digest;
@@ -17,9 +18,15 @@ std::string SHA256HashString(std::string aString){
 }
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
-    std::cout << SHA256HashString("helloworld") << std::endl;
+    ElGamal::PrivateKey privateKey = elgamal::KeyGen(128);
+    ElGamal::PublicKey publicKey;
+    publicKey.AssignFrom(privateKey);
+    tuple<Integer, Integer> ogenStuff = elgamal::OGen(privateKey.GetGroupParameters().GetModulus(), 128);
+    //cout <<  << endl;
 
-    elgamal::elgamalmeme();
+    //cout << publicKey.GetGroupParameters().GetGenerator() << endl;
+    //cout << get<0>(ogenStuff) << endl;
+    //cout << publicKey.GetPublicElement() << endl;
+    //cout << get<1>(ogenStuff) << endl;
     return 0;
 }
