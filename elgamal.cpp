@@ -15,9 +15,12 @@ ElGamal::PrivateKey elgamal::KeyGen(int keySize) {
 }
 
 
-tuple<Integer, Integer> elgamal::OGen(const Integer& mod, int keySize) {
+tuple<Integer, Integer, Integer> elgamal::OGen(const Integer& mod, int keySize) {
     AutoSeededRandomPool prng;
-    Integer g = CryptoPP::Integer(prng, 2, mod);
+
+    Integer x = CryptoPP::Integer(prng, 2, mod);
+    Integer g = a_exp_b_mod_c(x, 2, mod);
+
     while(g == 1 || a_exp_b_mod_c(g, (mod-1) / 2, mod) != 1){
         g = CryptoPP::Integer(prng, 2, mod);
     }
@@ -25,7 +28,8 @@ tuple<Integer, Integer> elgamal::OGen(const Integer& mod, int keySize) {
 
     Integer r = CryptoPP::Integer(prng, 1, Integer::Power2(2*keySize));
     Integer h = a_exp_b_mod_c(r, 2, mod);
-    return {g, h};
+
+     return {mod, g, h};
 }
 
 string elgamal::Encrypt(string msg, const Integer& mod, const Integer& g, const Integer& h){

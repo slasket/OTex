@@ -5,6 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(cryptopp CONFIG REQUIRED)
 
-add_executable(Otex main.cpp elgamal.cpp elgamal.h)
+add_executable(Otex main.cpp elgamal.cpp elgamal.h IntialOT.cpp IntialOT.h)
 
 target_link_libraries(Otex PRIVATE cryptopp::cryptopp)

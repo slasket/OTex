@@ -20,7 +20,7 @@ class elgamal {
 public:
     static ElGamal::PrivateKey KeyGen(int keySize);
 
-    static tuple<Integer, Integer> OGen(const Integer& mod, int keySize);
+    static tuple<Integer, Integer, Integer> OGen(const Integer& mod, int keySize);
 
     static string Encrypt(string msg, const CryptoPP::Integer &mod, const CryptoPP::Integer &g, const CryptoPP::Integer &h);
 
