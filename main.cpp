@@ -49,20 +49,19 @@ void InitialOTExample(int keysize, int choiceBit, string string0, string string1
 
 
 int main() {
-    cout<< InitialOT::initialOT(1024,0,"xd","haha")<<endl;
-    cout<< InitialOT::initialOT(1024,1,"xd","haha")<<endl;
-
-
     auto begin = std::chrono::high_resolution_clock::now();
-    InitialOTExample(1024,0, "hej", "farvel");
-    InitialOTExample(1024,1, "hej", "farvel");
+    for (int i = 0; i < 128; ++i) {
+        InitialOT::OT1out2(128, 0, "xd", "haha");//cout<< <<endl;
+    }
+    //cout<< InitialOT::OT1out2(128,1,"xd","haha")<<endl;
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
     printf("Time measured: %.3f seconds.\n", elapsed.count() * 1e-9);
 
     begin = std::chrono::high_resolution_clock::now();
-    InitialOTExample(2048,0, "hej", "farvel");
-    InitialOTExample(2048,1, "hej", "farvel");
+    for (int i = 0; i < 256; ++i) {
+        InitialOT::OT1out2(256, 0, "xd", "haha");//cout<< <<endl;
+    }
     end = std::chrono::high_resolution_clock::now();
     elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
     printf("Time measured: %.3f seconds.\n", elapsed.count() * 1e-9);

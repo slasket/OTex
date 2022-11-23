@@ -41,7 +41,6 @@ string InitialOT::Alice::receiveCipherArr(std::string *cpArr) {
 
 }
 
-
 string* InitialOT::Bob::receivePKArray(tuple<Integer, Integer,Integer> *pkArray) {
 
     string* cipherArr= new string[2];
@@ -52,7 +51,7 @@ string* InitialOT::Bob::receivePKArray(tuple<Integer, Integer,Integer> *pkArray)
     return cipherArr;
 }
 
-string InitialOT::initialOT(int keysize, int choicebit, string string0, string string1) {
+string InitialOT::OT1out2(int keysize, int choicebit, string string0, string string1) {
     Alice alice(choicebit);
     Bob bob(string0, string1);
 
@@ -60,4 +59,15 @@ string InitialOT::initialOT(int keysize, int choicebit, string string0, string s
     string *cipherArr = bob.receivePKArray(pkarr);
 
     return alice.receiveCipherArr(cipherArr);
+}
+
+string **InitialOT::BaseOT(int keysize) {
+    AutoSeededRandomPool prng;
+    SecByteBlock randString(keysize);
+    prng.GenerateBlock(randString, keysize);
+    randString.
+
+
+
+    return nullptr;
 }

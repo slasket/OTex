@@ -18,7 +18,10 @@ class InitialOT {
 
 
 public:
-    static string initialOT(int keysize, int choicebit, string string0, string string1);
+    static string OT1out2(int keysize, int choicebit, string string0, string string1);
+
+    static string** BaseOT(int keysize);
+
 
     class Alice{
         int bitVal;
