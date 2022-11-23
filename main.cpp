@@ -5,7 +5,7 @@
 #include "cryptopp/base64.h"
 #include "elgamal.h"
 #include "cryptopp/nbtheory.h"
-#include "IntialOT.h"
+#include "InitialOT.h"
 
 void sampleEncryption();
 
@@ -38,20 +38,37 @@ void sampleEncryption() {
     cout << d << endl;
 }
 
-void InitialOTExample(int choiceBit, int keysize, string string0, string string1){
-    IntialOT::Alice alice(choiceBit);
-    IntialOT::Bob bob(string0,string1);
+void InitialOTExample(int keysize, int choiceBit, string string0, string string1){
+    InitialOT::Alice alice(choiceBit);
+    InitialOT::Bob bob(string0, string1);
 
     auto pkarr = alice.genPKArray(keysize);
-    auto cipherArr = bob.receivePKArray(pkarr);
+    string* cipherArr = bob.receivePKArray(pkarr);
     cout<< alice.receiveCipherArr(cipherArr)<< endl;
 }
 
-int main() {
-    InitialOTExample(0,128, "hej", "farvel");
-    InitialOTExample(1,128, "hej", "farvel");
 
+int main() {
+    cout<< InitialOT::initialOT(1024,0,"xd","haha")<<endl;
+    cout<< InitialOT::initialOT(1024,1,"xd","haha")<<endl;
+
+
+    auto begin = std::chrono::high_resolution_clock::now();
+    InitialOTExample(1024,0, "hej", "farvel");
+    InitialOTExample(1024,1, "hej", "farvel");
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
+    printf("Time measured: %.3f seconds.\n", elapsed.count() * 1e-9);
+
+    begin = std::chrono::high_resolution_clock::now();
+    InitialOTExample(2048,0, "hej", "farvel");
+    InitialOTExample(2048,1, "hej", "farvel");
+    end = std::chrono::high_resolution_clock::now();
+    elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
+    printf("Time measured: %.3f seconds.\n", elapsed.count() * 1e-9);
     //sampleEncryption();
+
+
 
 
     return 0;

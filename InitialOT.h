@@ -2,8 +2,8 @@
 // Created by a on 20/11/2022.
 //
 
-#ifndef OTEX_INTIALOT_H
-#define OTEX_INTIALOT_H
+#ifndef OTEX_INITIALOT_H
+#define OTEX_INITIALOT_H
 
 
 #include <string>
@@ -14,10 +14,12 @@
 using namespace CryptoPP;
 using namespace std;
 
-class IntialOT {
+class InitialOT {
 
 
 public:
+    static string initialOT(int keysize, int choicebit, string string0, string string1);
+
     class Alice{
         int bitVal;
         ElGamal::PrivateKey privateKey;
@@ -51,4 +53,4 @@ public:
 };
 
 
-#endif //OTEX_INTIALOT_H
+#endif //OTEX_INITIALOT_H

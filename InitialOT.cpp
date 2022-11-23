@@ -2,14 +2,14 @@
 // Created by a on 20/11/2022.
 //
 
-#include "IntialOT.h"
+#include "InitialOT.h"
 #include "elgamal.h"
 #include "cryptopp/elgamal.h"
 #include "cryptopp/osrng.h"
 
 using namespace std;
 
-tuple<Integer, Integer,Integer>* IntialOT::Alice::genPKArray(int keySize) {
+tuple<Integer, Integer,Integer>* InitialOT::Alice::genPKArray(int keySize) {
     privateKey = elgamal::KeyGen(keySize);
     Integer mod = privateKey.GetGroupParameters().GetModulus();
     Integer g = privateKey.GetGroupParameters().GetGenerator();
@@ -33,7 +33,7 @@ tuple<Integer, Integer,Integer>* IntialOT::Alice::genPKArray(int keySize) {
     return pkArr;
 }
 
-string IntialOT::Alice::receiveCipherArr(std::string *cpArr) {
+string InitialOT::Alice::receiveCipherArr(std::string *cpArr) {
     Integer mod = privateKey.GetGroupParameters().GetModulus();
     Integer g = privateKey.GetGroupParameters().GetGenerator();
     Integer x = privateKey.GetPrivateExponent();
@@ -42,11 +42,7 @@ string IntialOT::Alice::receiveCipherArr(std::string *cpArr) {
 }
 
 
-
-
-
-
-string* IntialOT::Bob::receivePKArray(tuple<Integer, Integer,Integer> *pkArray) {
+string* InitialOT::Bob::receivePKArray(tuple<Integer, Integer,Integer> *pkArray) {
 
     string* cipherArr= new string[2];
 
@@ -54,4 +50,14 @@ string* IntialOT::Bob::receivePKArray(tuple<Integer, Integer,Integer> *pkArray) 
     cipherArr[1] = elgamal::Encrypt(str1, get<0>(pkArray[1]), get<1>(pkArray[1]), get<2>(pkArray[1]));
 
     return cipherArr;
+}
+
+string InitialOT::initialOT(int keysize, int choicebit, string string0, string string1) {
+    Alice alice(choicebit);
+    Bob bob(string0, string1);
+
+    auto pkarr = alice.genPKArray(keysize);
+    string *cipherArr = bob.receivePKArray(pkarr);
+
+    return alice.receiveCipherArr(cipherArr);
 }
