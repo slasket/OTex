@@ -50,7 +50,7 @@ string elgamal::Decrypt(string cipher, const Integer& mod, const Integer& g, con
     privateKey.Initialize(mod, g, x);
     ElGamal::Decryptor decryptor(privateKey);
     string recovered;
-    StringSource(cipher, true,
+    StringSource plaintextSource(cipher, true,
                  new PK_DecryptorFilter(prng, decryptor,
                                         new StringSink(recovered)));
     return recovered;

@@ -9,6 +9,8 @@
 
 void sampleEncryption();
 
+void timing1Of2OT();
+
 std::string SHA256HashString(std::string aString){
     std::string digest;
     CryptoPP::SHA256 hash;
@@ -47,24 +49,31 @@ void InitialOTExample(int keysize, int choiceBit, string string0, string string1
     cout<< alice.receiveCipherArr(cipherArr)<< endl;
 }
 
-
-int main() {
-    auto begin = std::chrono::high_resolution_clock::now();
+void timing1Of2OT() {
+    auto begin = chrono::steady_clock::now();
     for (int i = 0; i < 128; ++i) {
         InitialOT::OT1out2(128, 0, "xd", "haha");//cout<< <<endl;
     }
     //cout<< InitialOT::OT1out2(128,1,"xd","haha")<<endl;
-    auto end = std::chrono::high_resolution_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
+    auto end = chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<chrono::nanoseconds>(end - begin);
     printf("Time measured: %.3f seconds.\n", elapsed.count() * 1e-9);
 
-    begin = std::chrono::high_resolution_clock::now();
+    begin = chrono::steady_clock::now();
     for (int i = 0; i < 256; ++i) {
         InitialOT::OT1out2(256, 0, "xd", "haha");//cout<< <<endl;
     }
-    end = std::chrono::high_resolution_clock::now();
-    elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
+    end = chrono::steady_clock::now();
+    elapsed = std::chrono::duration_cast<chrono::nanoseconds>(end - begin);
     printf("Time measured: %.3f seconds.\n", elapsed.count() * 1e-9);
+}
+
+
+int main() {
+    InitialOT::BaseOT(1024,80);
+
+    //timing1Of2OT();
+
     //sampleEncryption();
 
 
@@ -72,4 +81,6 @@ int main() {
 
     return 0;
 }
+
+
 
