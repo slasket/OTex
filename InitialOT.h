@@ -18,8 +18,6 @@ class InitialOT {
 
 
 public:
-    static string OT1out2(int keysize, int choicebit, string string0, string string1);
-
     class Alice{
         int bitVal;
         ElGamal::PrivateKey privateKey;
@@ -28,11 +26,9 @@ public:
                 bitVal = decisionBit;
             };
 
-            tuple<Integer, Integer,Integer>* genPKArray(int keySize);
-
             string receiveCipherArr(std::string cpArr[]);
 
-
+            tuple<Integer, Integer, Integer> *genPKArray(int keySize, Integer mod, Integer g);
     };
 
     class Bob{
@@ -54,6 +50,8 @@ public:
     static string GenerateKbitString(int keysize);
 
     static string** BaseOT(int elgamalkeysize, int symmetricKeysize);
+
+    static string OT1out2(int keySize, const Integer& mod, const Integer& g, int choicebit, string string0, string string1);
 };
 
 

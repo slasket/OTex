@@ -11,6 +11,8 @@ void sampleEncryption();
 
 void timing1Of2OT();
 
+void testGroupParaInit();
+
 std::string SHA256HashString(std::string aString){
     std::string digest;
     CryptoPP::SHA256 hash;
@@ -23,7 +25,7 @@ std::string SHA256HashString(std::string aString){
     return digest;
 }
 
-void sampleEncryption() {
+/*void sampleEncryption() {
     ElGamal::PrivateKey privateKey = elgamal::KeyGen(128);
     ElGamal::PublicKey publicKey;
     publicKey.AssignFrom(privateKey);
@@ -38,9 +40,9 @@ void sampleEncryption() {
                                 privateKey.GetGroupParameters().GetGenerator(),
                                 privateKey.GetPrivateExponent());
     cout << d << endl;
-}
+}*/
 
-void InitialOTExample(int keysize, int choiceBit, string string0, string string1){
+/*void InitialOTExample(int keysize, int choiceBit, string string0, string string1){
     InitialOT::Alice alice(choiceBit);
     InitialOT::Bob bob(string0, string1);
 
@@ -66,20 +68,35 @@ void timing1Of2OT() {
     end = chrono::steady_clock::now();
     elapsed = std::chrono::duration_cast<chrono::nanoseconds>(end - begin);
     printf("Time measured: %.3f seconds.\n", elapsed.count() * 1e-9);
-}
+}*/
 
 
 int main() {
-    InitialOT::BaseOT(1024,80);
+    InitialOT::BaseOT(2048,128);
 
     //timing1Of2OT();
 
     //sampleEncryption();
 
-
-
+    //testGroupParaInit();
 
     return 0;
+}
+
+void testGroupParaInit() {
+    auto privateKey = elgamal::InitializeGroupParameters(
+            128);
+
+    Integer mod = privateKey.GetGroupParameters().GetModulus();
+    Integer g = privateKey.GetGroupParameters().GetGenerator();
+
+    for (int i = 0; i < 10000; ++i) {
+        const tuple<Integer, Integer> &keyValues = elgamal::KeyGen(128, mod, g);
+        string c = elgamal::Encrypt(("banan" + to_string(i)), mod, g, get<0>(keyValues));
+        //cout << c << endl;
+        string d = elgamal::Decrypt(c, mod, g, get<1>(keyValues));
+        //cout << d << endl;
+    }
 }
 
 

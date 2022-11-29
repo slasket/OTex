@@ -7,7 +7,15 @@
 #include "cryptopp/osrng.h"
 
 
-ElGamal::PrivateKey elgamal::KeyGen(int keySize) {
+tuple<Integer, Integer> elgamal::KeyGen(int keySize, Integer &mod, Integer &g) {
+    AutoSeededRandomPool prng;
+    Integer x;
+    x.Randomize(prng, keySize);
+    Integer h = a_exp_b_mod_c(g, x, mod);
+    return {h, x};
+}
+
+ElGamal::PrivateKey elgamal::InitializeGroupParameters(int keySize) {
     AutoSeededRandomPool prng;
     ElGamal::PrivateKey privateKey;
     privateKey.GenerateRandomWithKeySize(prng, keySize);
