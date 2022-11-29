@@ -23,11 +23,11 @@ ElGamal::PrivateKey elgamal::InitializeGroupParameters(int keySize) {
 }
 
 
-tuple<Integer, Integer, Integer> elgamal::OGen(const Integer& mod, int keySize) {
+tuple<Integer, Integer, Integer> elgamal::OGen(const Integer& mod, Integer g, int keySize) {
     AutoSeededRandomPool prng;
 
     Integer x = CryptoPP::Integer(prng, 2, mod);
-    Integer g = a_exp_b_mod_c(x, 2, mod);
+    //Integer g = a_exp_b_mod_c(x, 2, mod);
 
     while(g == 1 || a_exp_b_mod_c(g, (mod-1) / 2, mod) != 1){
         g = CryptoPP::Integer(prng, 2, mod);

@@ -23,7 +23,7 @@ tuple<Integer, Integer,Integer>* InitialOT::Alice::genPKArray(int keySize, Integ
 
     Integer h = get<0>(keyValues);
 
-    tuple<Integer, Integer,Integer> ogenVals = elgamal::OGen(mod, keySize);
+    tuple<Integer, Integer,Integer> ogenVals = elgamal::OGen(mod, g, keySize);
 
     auto* pkArr = new tuple<Integer, Integer,Integer>[2];
     if (bitVal == 0){
