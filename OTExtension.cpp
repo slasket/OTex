@@ -78,7 +78,7 @@ tuple<string, string>* OTExtension::Sender::generateYpairs(string initalSenderSt
         cout << "initialSenderString" << initalSenderString << endl;
         char* string1 = const_cast<char *>(initalSenderString.c_str());
         Integer a = Integer(string1);
-        cout << "stoi(initalSenderString): " << a << endl;
+        cout << "stoi(initalSenderString): " << a << endl;  //TODO: this string to too big to convert to int for XORing with qmatrix[i]
         auto qiXORs = qmatrix[i] ^ 1;
         cout << "qiXORs: " << qiXORs << endl;
         int y1 = stoi(get<1>(senderStrings[i])) ^ hFunction(i , qiXORs);
