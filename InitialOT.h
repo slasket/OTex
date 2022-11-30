@@ -40,16 +40,13 @@ public:
                 str1 = move(string1);
             };
 
-            //recive public key arr and encrypt l-bit strings
+            //receive public key arr and encrypt l-bit strings
             string* receivePKArray(tuple<Integer, Integer,Integer> pkArray[]);
-
-
-
     };
 
     static string GenerateKbitString(int keysize);
 
-    static string** BaseOT(int elgamalkeysize, int symmetricKeysize);
+    static tuple<string*,tuple<string,string>*, string> BaseOT(int elgamalkeysize, int symmetricKeysize);
 
     static string OT1out2(int keySize, const Integer& mod, const Integer& g, int choicebit, string string0, string string1);
 };

@@ -78,8 +78,9 @@ string InitialOT::GenerateKbitString(int const k) {
 }
 
 
-string** InitialOT::BaseOT(int const elgamalkeysize, int symmetricKeysize) {
+tuple<string*, tuple<string,string>*, string> InitialOT::BaseOT(int const elgamalkeysize, int symmetricKeysize) {
 
+    //S choose a random string s
     string SenderString = GenerateKbitString(symmetricKeysize);
 
     //Init group parameters
@@ -87,21 +88,41 @@ string** InitialOT::BaseOT(int const elgamalkeysize, int symmetricKeysize) {
     Integer mod = groupParaKey.GetGroupParameters().GetModulus();
     Integer g = groupParaKey.GetGroupParameters().GetGenerator();
 
+    //R chooses k pairs of k-bit seeds
     auto* receiverPairs = new tuple<string,string>[symmetricKeysize];
     for (int i = 0; i < symmetricKeysize; ++i) {
         receiverPairs[i] = {GenerateKbitString(symmetricKeysize),GenerateKbitString(symmetricKeysize)};
     }
 
+    //Receiver saves kbitseeds
+    //InitialOT::Receiver receiver{};
+    //receiver.setKbitSeeds(receiverPairs);
+
+    //kXOTk functionality
+    auto* kresults = new string[symmetricKeysize];
     for (int i = 0; i < symmetricKeysize; ++i) {
-        cout<< i <<endl;
+        //cout<< i <<endl;
         int senderChoiceBit = (int)(SenderString[i]-'0');
 
-        string xd = OT1out2(elgamalkeysize, mod, g, senderChoiceBit,get<0>(receiverPairs[i]),get<1>(receiverPairs[i]));
+        string receivedString = OT1out2(elgamalkeysize, mod, g, senderChoiceBit, get<0>(receiverPairs[i]), get<1>(receiverPairs[i]));
+        kresults[i] = receivedString;
 
-        cout<< xd<<endl;
+        //cout<< receivedString<<endl;
     }
+    return {kresults,receiverPairs, SenderString};
 
+    //Receiver generates m selection bits called r
+    //int r = std::stoi(GenerateKbitString(symmetricKeysize));    //MOVE TO SOMEWHERE ELSE. THIS IS ONLY FOR TESTING
+    //int *umatrix = receiver.computeTandUMatricies(symmetricKeysize, receiverPairs, r);
 
-    return nullptr;
+    //Sender computes q matrix
+    //InitialOT::Sender sender{};
+    //sender.computeQMatrix(umatrix, kresults);
+
 }
+
+
+
+
+
 

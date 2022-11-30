@@ -1,11 +1,13 @@
 #include <iostream>
 #include <cryptopp/elgamal.h>
+#include <bitset>
 #include "cryptopp/sha.h"
 #include "cryptopp/filters.h"
 #include "cryptopp/base64.h"
 #include "elgamal.h"
 #include "cryptopp/nbtheory.h"
 #include "InitialOT.h"
+#include "OTExtension.h"
 
 void sampleEncryption();
 
@@ -69,10 +71,25 @@ void timing1Of2OT() {
     elapsed = std::chrono::duration_cast<chrono::nanoseconds>(end - begin);
     printf("Time measured: %.3f seconds.\n", elapsed.count() * 1e-9);
 }*/
-
+std::string to_binary(const std::string& input)
+{
+    std::ostringstream oss;
+    for(auto c : input) {
+        oss << std::bitset<8>(c);
+    }
+    return oss.str();
+}
 
 int main() {
-    InitialOT::BaseOT(2048,128);
+    //const char *string1 = "1111000101111010011111000101111010011111110001011110100111110001011110100111";
+    //Integer a = Integer(string1);
+    //cout << a << endl;
+    tuple<string, string>* senderStrings = new tuple<string, string>[2];
+    senderStrings[0] = {"00", "01"};
+    senderStrings[1] = {"10", "11"};
+    OTExtension::OTExtensionProtocol(senderStrings, "01", 80, 1024);
+
+    //InitialOT::BaseOT(512,30);
 
     //timing1Of2OT();
 
