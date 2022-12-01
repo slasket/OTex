@@ -10,6 +10,7 @@
 #include <utility>
 #include "cryptopp/elgamal.h"
 #include "cryptopp/osrng.h"
+#include "OTExtension.h"
 
 using namespace CryptoPP;
 using namespace std;
@@ -26,29 +27,32 @@ public:
                 bitVal = decisionBit;
             };
 
-            string receiveCipherArr(std::string cpArr[]);
+            tuple<uint64_t, uint64_t> receiveCipherArr(string *cpArr);
 
             tuple<Integer, Integer, Integer> *genPKArray(int keySize, Integer mod, Integer g);
     };
 
     class Bob{
-        string str0;
-        string str1;
+        tuple<uint64_t , uint64_t> str0;
+        tuple<uint64_t , uint64_t> str1;
         public:
-            explicit Bob(string string0, string string1){
-                str0 = move(string0);
-                str1 = move(string1);
+            explicit Bob(const tuple<uint64_t , uint64_t>& string0, const tuple<uint64_t , uint64_t>& string1){
+                str0 = string0;
+                str1 = string1;
             };
 
             //receive public key arr and encrypt l-bit strings
             string* receivePKArray(tuple<Integer, Integer,Integer> pkArray[]);
     };
 
-    static string GenerateKbitString(int keysize);
+    static tuple<uint64_t, uint64_t> GenerateKbitString(const int keysize);
 
-    static tuple<string*,tuple<string,string>*, string> BaseOT(int elgamalkeysize, int symmetricKeysize);
+    static tuple<uint64_t, uint64_t> *
+    BaseOT(int const elgamalkeysize, int symmetricKeysize, OTExtension::Sender sender, OTExtension::Receiver receiver);
 
-    static string OT1out2(int keySize, const Integer& mod, const Integer& g, int choicebit, string string0, string string1);
+    static tuple<uint64_t, uint64_t> OT1out2(int keySize, const Integer& mod, const Integer& g, int choicebit, const tuple<uint64_t, uint64_t>& string0, const tuple<uint64_t, uint64_t>& string1);
+
+    static int findUIntBit(int idx, const tuple<uint64_t, uint64_t>& uint);
 };
 
 

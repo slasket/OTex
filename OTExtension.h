@@ -12,19 +12,19 @@ using namespace std;
 
 
 class OTExtension {
-
+public:
     class Receiver{
-        tuple<string,string>* kbitSeeds;
         int* tmatrix;
         string selectionBits;
+        tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>>* kpairs;
+
     public:
         explicit Receiver(string sb){
             selectionBits = std::move(sb);
         };
 
-        //saves kbitSeeds to receiver
-        void setKbitSeeds(tuple<string, string>* pTuple){
-            kbitSeeds = pTuple;
+        void setKpairs(tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>> *kpairs) {
+            Receiver::kpairs = kpairs;
         }
         int * computeTandUMatricies(int symmetricKeysize, const tuple<string, string> *receiverPairs);
 
@@ -34,10 +34,14 @@ class OTExtension {
     class Sender{
         int* qmatrix;
         tuple<string,string>* senderStrings;
+        tuple<uint64_t, uint64_t> initialOTChoiceBits;
     public:
         explicit Sender(tuple<string,string>* ss){
             senderStrings = ss;
         };
+        void setInitialOTChoiceBits(tuple<uint64_t, uint64_t> initialOTChoiceBits){
+            Sender::initialOTChoiceBits = initialOTChoiceBits;
+        }
         void computeQMatrix(const int* umatrix, string* kresults, string initalSenderString);
         tuple<string,string>* generateYpairs(string initalSenderString);
 

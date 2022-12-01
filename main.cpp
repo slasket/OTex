@@ -84,13 +84,9 @@ int main() {
     //const char *string1 = "1111000101111010011111000101111010011111110001011110100111110001011110100111";
     //Integer a = Integer(string1);
     //cout << a << endl;
-    tuple<string, string>* senderStrings = new tuple<string, string>[2];
-    senderStrings[0] = {"00", "01"};
-    senderStrings[1] = {"10", "11"};
-    OTExtension::OTExtensionProtocol(senderStrings, "01", 80, 1024);
-
-    //InitialOT::BaseOT(512,30);
-
+    OTExtension::Sender sender(nullptr);
+    OTExtension::Receiver receiver("nullpointer");
+    InitialOT::BaseOT(2048,128, sender, receiver);
     //timing1Of2OT();
 
     //sampleEncryption();

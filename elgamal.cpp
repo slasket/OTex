@@ -61,5 +61,6 @@ string elgamal::Decrypt(string cipher, const Integer& mod, const Integer& g, con
     StringSource plaintextSource(cipher, true,
                  new PK_DecryptorFilter(prng, decryptor,
                                         new StringSink(recovered)));
+
     return recovered;
 }

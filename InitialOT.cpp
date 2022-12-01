@@ -8,6 +8,7 @@
 #include "cryptopp/osrng.h"
 #include <bitset>
 #include <utility>
+#include "OTExtension.h"
 
 using namespace std;
 
@@ -37,12 +38,16 @@ tuple<Integer, Integer,Integer>* InitialOT::Alice::genPKArray(int keySize, Integ
     return pkArr;
 }
 
-string InitialOT::Alice::receiveCipherArr(std::string *cpArr) {
+tuple<uint64_t, uint64_t> InitialOT::Alice::receiveCipherArr(std::string *cpArr) {
     Integer mod = privateKey.GetGroupParameters().GetModulus();
     Integer g = privateKey.GetGroupParameters().GetGenerator();
     Integer x = privateKey.GetPrivateExponent();
 
-    auto res = elgamal::Decrypt(cpArr[bitVal], mod, g, x);
+    auto msg = elgamal::Decrypt(cpArr[bitVal], mod, g, x);
+
+    uint64_t highBits = stoull(msg.substr(0, 64), nullptr, 2);
+    uint64_t lowBits = stoull(msg.substr(64, 64), nullptr, 2);
+    tuple<uint64_t, uint64_t> res = {highBits, lowBits};
     return res;
 
 }
@@ -50,16 +55,21 @@ string InitialOT::Alice::receiveCipherArr(std::string *cpArr) {
 string* InitialOT::Bob::receivePKArray(tuple<Integer, Integer,Integer> *pkArray) {
 
     auto* cipherArr= new string[2];
-
-    cipherArr[0] = elgamal::Encrypt(str0, get<0>(pkArray[0]), get<1>(pkArray[0]), get<2>(pkArray[0]));
-    cipherArr[1] = elgamal::Encrypt(str1, get<0>(pkArray[1]), get<1>(pkArray[1]), get<2>(pkArray[1]));
+    auto highBitsStr0 = bitset<64>(get<0>(str0)).to_string();
+    auto lowBitsStr0 = bitset<64>(get<1>(str0)).to_string();
+    auto highBitsStr1 = bitset<64>(get<0>(str1)).to_string();
+    auto lowBitsStr1 = bitset<64>(get<1>(str1)).to_string();
+    string stringToEncrypt0 = highBitsStr0 + lowBitsStr0;
+    string stringToEncrypt1 = highBitsStr1 + lowBitsStr1;
+    cipherArr[0] = elgamal::Encrypt(stringToEncrypt0, get<0>(pkArray[0]), get<1>(pkArray[0]), get<2>(pkArray[0]));
+    cipherArr[1] = elgamal::Encrypt(stringToEncrypt1, get<0>(pkArray[1]), get<1>(pkArray[1]), get<2>(pkArray[1]));
 
     return cipherArr;
 }
 
-string InitialOT::OT1out2(int keySize, const Integer& mod, const Integer& g, int choicebit, string string0, string string1) {
+tuple<uint64_t, uint64_t> InitialOT::OT1out2(int keySize, const Integer& mod, const Integer& g, int choicebit, const tuple<uint64_t, uint64_t>& string0, const tuple<uint64_t, uint64_t>& string1) {
     Alice alice(choicebit);
-    Bob bob(std::move(string0), std::move(string1));
+    Bob bob(string0, string1);
 
     auto pkarr = alice.genPKArray(keySize, mod, g);
     string *cipherArr = bob.receivePKArray(pkarr);
@@ -68,48 +78,74 @@ string InitialOT::OT1out2(int keySize, const Integer& mod, const Integer& g, int
 }
 
 
-string InitialOT::GenerateKbitString(int const k) {
+tuple<uint64_t, uint64_t> InitialOT::GenerateKbitString(int const k) {
     AutoSeededRandomPool prng;
-    string res;
-    for (int i = 0; i < k; ++i) {
-        res += to_string(prng.GenerateBit());
+    uint64_t intLowerBits;
+    uint64_t intHigherBits;
+    if(k < 64){
+        cout << "You retard" << endl;
     }
-    return res;
+    else {
+        string bitString1;
+        for(int i = 0; i < 64; i++){
+            bitString1 += to_string(prng.GenerateBit());
+        }
+        if(bitString1.length() != 64) {
+            cout << "bitString1 is not 64 bits" << endl;
+        }
+        intLowerBits = stoull(bitString1, nullptr, 2);
+        string bitString2;
+        for(int i = 64; i < k; i++) {
+            bitString2 += to_string(prng.GenerateBit());
+        }
+        intHigherBits = stoull(bitString2, nullptr, 2);
+    }
+    return {intHigherBits, intLowerBits};
+
 }
 
 
-tuple<string*, tuple<string,string>*, string> InitialOT::BaseOT(int const elgamalkeysize, int symmetricKeysize) {
+tuple<uint64_t, uint64_t>* InitialOT::BaseOT(int const elgamalkeysize, int symmetricKeysize, OTExtension::Sender sender, OTExtension::Receiver receiver) {
 
+    cout << "Starting" << endl;
     //S choose a random string s
-    string SenderString = GenerateKbitString(symmetricKeysize);
+    tuple<uint64_t, uint64_t> initialOTChoiceBits = GenerateKbitString(symmetricKeysize);
+    cout << "kbitstring works" << endl;
 
+    cout << "init group" << endl;
     //Init group parameters
     auto groupParaKey = elgamal::InitializeGroupParameters(elgamalkeysize);
     Integer mod = groupParaKey.GetGroupParameters().GetModulus();
     Integer g = groupParaKey.GetGroupParameters().GetGenerator();
+    cout << "group found" << endl;
 
+    cout << "choose kbit seeds" << endl;
     //R chooses k pairs of k-bit seeds
-    auto* receiverPairs = new tuple<string,string>[symmetricKeysize];
+    auto* receiverPairs = new tuple<tuple<uint64_t, uint64_t>,tuple<uint64_t, uint64_t>>[symmetricKeysize];
     for (int i = 0; i < symmetricKeysize; ++i) {
         receiverPairs[i] = {GenerateKbitString(symmetricKeysize),GenerateKbitString(symmetricKeysize)};
     }
 
+    cout << "kbit seeds chosen" << endl;
     //Receiver saves kbitseeds
     //InitialOT::Receiver receiver{};
     //receiver.setKbitSeeds(receiverPairs);
 
     //kXOTk functionality
-    auto* kresults = new string[symmetricKeysize];
+    auto* kresults = new tuple<uint64_t, uint64_t> [symmetricKeysize];
     for (int i = 0; i < symmetricKeysize; ++i) {
-        //cout<< i <<endl;
-        int senderChoiceBit = (int)(SenderString[i]-'0');
+        cout<< i <<endl;
+        int senderChoiceBit = findUIntBit(i, initialOTChoiceBits);
 
-        string receivedString = OT1out2(elgamalkeysize, mod, g, senderChoiceBit, get<0>(receiverPairs[i]), get<1>(receiverPairs[i]));
-        kresults[i] = receivedString;
+        tuple<uint64_t, uint64_t> receivedKey = OT1out2(elgamalkeysize, mod, g, senderChoiceBit, get<0>(receiverPairs[i]), get<1>(receiverPairs[i]));
+        kresults[i] = receivedKey;
 
         //cout<< receivedString<<endl;
     }
-    return {kresults,receiverPairs, SenderString};
+    receiver.setKpairs(receiverPairs);
+    sender.setInitialOTChoiceBits(initialOTChoiceBits);
+    cout << "Stuff works" << endl;
+    return kresults;
 
     //Receiver generates m selection bits called r
     //int r = std::stoi(GenerateKbitString(symmetricKeysize));    //MOVE TO SOMEWHERE ELSE. THIS IS ONLY FOR TESTING
@@ -119,6 +155,17 @@ tuple<string*, tuple<string,string>*, string> InitialOT::BaseOT(int const elgama
     //InitialOT::Sender sender{};
     //sender.computeQMatrix(umatrix, kresults);
 
+}
+
+int InitialOT::findUIntBit(int idx, const tuple<uint64_t, uint64_t>& uint) {
+    if(idx < 64){
+        uint64_t leastSignificantBits = get<1>(uint);
+        return bitset<64>(leastSignificantBits)[idx];
+    }
+    else {
+        uint64_t mostSignificantBits = get<0>(uint);
+        return bitset<64>(mostSignificantBits)[idx-64];
+    }
 }
 
 

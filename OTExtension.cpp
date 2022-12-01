@@ -39,6 +39,8 @@ string* OTExtension::Receiver::computeResult(tuple<string, string> *yPairs) {
     return result;
 }
 
+
+
 int OTExtension::Sender::fuckdig(int si, const int umatrixi) { //TODO: skal ikke hedde fuckdig
     int* res = new int[sizeof(umatrixi)];
     for (int i = 0; i < sizeof(umatrixi); ++i) {
@@ -96,25 +98,21 @@ string* OTExtension::OTExtensionProtocol(tuple<string,string>* senderStrings, co
 
     //initial OT phase
     cout<< "Starting initial OT phase" << endl;
-    auto initialResult = InitialOT::BaseOT(elgamalkeysize, k);
+    auto kresult = InitialOT::BaseOT(elgamalkeysize, k, sender, receiver);
     cout<< "Initial OT phase finished" << endl;
-    auto kresult = get<0>(initialResult);
-    auto receiverPairs = get<1>(initialResult);
-    auto initalSenderString = get<2>(initialResult);
-    receiver.setKbitSeeds(receiverPairs);
 
-    //OT extension phase
-    cout<< "Starting OT extension phase" << endl;
-    int* umatrix = receiver.computeTandUMatricies(k, receiverPairs);
-    // receiver "sends" umatrix to sender
-    cout << "Computing q matrix" << endl;
-    sender.computeQMatrix(umatrix, kresult, initalSenderString);
-    cout << "Computing y pairs" << endl;
-    tuple<string, string> *yPairs = sender.generateYpairs(initalSenderString);
-    // sender "sends" yPairs to receiver
-    cout << "Computing result" << endl;
-    auto result = receiver.computeResult(yPairs);
-    return result;
+    ////OT extension phase
+    //cout<< "Starting OT extension phase" << endl;
+    //int* umatrix = receiver.computeTandUMatricies(k, receiverPairs);
+    //// receiver "sends" umatrix to sender
+    //cout << "Computing q matrix" << endl;
+    //sender.computeQMatrix(umatrix, kresult, initalSenderString);
+    //cout << "Computing y pairs" << endl;
+    //tuple<string, string> *yPairs = sender.generateYpairs(initalSenderString);
+    //// sender "sends" yPairs to receiver
+    //cout << "Computing result" << endl;
+    //auto result = receiver.computeResult(yPairs);
+    return nullptr;
 }
 
 
