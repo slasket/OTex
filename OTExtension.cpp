@@ -6,6 +6,7 @@
 #include "OTExtension.h"
 #include "InitialOT.h"
 #include "cryptopp/integer.h"
+#include <iostream>
 
 using namespace std;
 using namespace CryptoPP;

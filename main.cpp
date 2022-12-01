@@ -71,14 +71,14 @@ void timing1Of2OT() {
     elapsed = std::chrono::duration_cast<chrono::nanoseconds>(end - begin);
     printf("Time measured: %.3f seconds.\n", elapsed.count() * 1e-9);
 }*/
-std::string to_binary(const std::string& input)
-{
-    std::ostringstream oss;
-    for(auto c : input) {
-        oss << std::bitset<8>(c);
-    }
-    return oss.str();
-}
+//std::string to_binary(const std::string& input)
+//{
+//    std::ostringstream oss;
+//    for(auto c : input) {
+//        oss << std::bitset<8>(c);
+//    }
+//    return oss.str();
+//}
 
 int main() {
     //const char *string1 = "1111000101111010011111000101111010011111110001011110100111110001011110100111";
