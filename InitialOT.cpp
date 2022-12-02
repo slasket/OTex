@@ -107,26 +107,21 @@ tuple<uint64_t, uint64_t> InitialOT::GenerateKbitString(int const k) {
 
 tuple<uint64_t, uint64_t>* InitialOT::BaseOT(int const elgamalkeysize, int symmetricKeysize, OTExtension::Sender sender, OTExtension::Receiver receiver) {
 
-    cout << "Starting" << endl;
+
     //S choose a random string s
     tuple<uint64_t, uint64_t> initialOTChoiceBits = GenerateKbitString(symmetricKeysize);
-    cout << "kbitstring works" << endl;
 
-    cout << "init group" << endl;
     //Init group parameters
     auto groupParaKey = elgamal::InitializeGroupParameters(elgamalkeysize);
     Integer mod = groupParaKey.GetGroupParameters().GetModulus();
     Integer g = groupParaKey.GetGroupParameters().GetGenerator();
-    cout << "group found" << endl;
 
-    cout << "choose kbit seeds" << endl;
     //R chooses k pairs of k-bit seeds
     auto* receiverPairs = new tuple<tuple<uint64_t, uint64_t>,tuple<uint64_t, uint64_t>>[symmetricKeysize];
     for (int i = 0; i < symmetricKeysize; ++i) {
         receiverPairs[i] = {GenerateKbitString(symmetricKeysize),GenerateKbitString(symmetricKeysize)};
     }
 
-    cout << "kbit seeds chosen" << endl;
     //Receiver saves kbitseeds
     //InitialOT::Receiver receiver{};
     //receiver.setKbitSeeds(receiverPairs);
@@ -134,7 +129,6 @@ tuple<uint64_t, uint64_t>* InitialOT::BaseOT(int const elgamalkeysize, int symme
     //kXOTk functionality
     auto* kresults = new tuple<uint64_t, uint64_t> [symmetricKeysize];
     for (int i = 0; i < symmetricKeysize; ++i) {
-        cout<< i <<endl;
         int senderChoiceBit = findUIntBit(i, initialOTChoiceBits);
 
         tuple<uint64_t, uint64_t> receivedKey = OT1out2(elgamalkeysize, mod, g, senderChoiceBit, get<0>(receiverPairs[i]), get<1>(receiverPairs[i]));
@@ -144,7 +138,6 @@ tuple<uint64_t, uint64_t>* InitialOT::BaseOT(int const elgamalkeysize, int symme
     }
     receiver.setKpairs(receiverPairs);
     sender.setInitialOTChoiceBits(initialOTChoiceBits);
-    cout << "Stuff works" << endl;
     return kresults;
 
     //Receiver generates m selection bits called r
