@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cryptopp/elgamal.h>
 #include <bitset>
+#include <sstream>
 #include "cryptopp/sha.h"
 #include "cryptopp/filters.h"
 #include "cryptopp/base64.h"
@@ -8,6 +9,11 @@
 #include "cryptopp/nbtheory.h"
 #include "InitialOT.h"
 #include "OTExtension.h"
+#include "cryptopp/hex.h"
+#include "cryptopp/files.h"
+#include "cryptopp/modes.h"
+
+
 
 void sampleEncryption();
 
@@ -15,17 +21,7 @@ void timing1Of2OT();
 
 void testGroupParaInit();
 
-std::string SHA256HashString(std::string aString){
-    std::string digest;
-    CryptoPP::SHA256 hash;
 
-    CryptoPP::StringSource foo(aString, true,
-                               new CryptoPP::HashFilter(hash,
-                                                        new CryptoPP::Base64Encoder (
-                                                                new CryptoPP::StringSink(digest))));
-
-    return digest;
-}
 
 /*void sampleEncryption() {
     ElGamal::PrivateKey privateKey = elgamal::KeyGen(128);
@@ -43,6 +39,10 @@ std::string SHA256HashString(std::string aString){
                                 privateKey.GetPrivateExponent());
     cout << d << endl;
 }*/
+
+void AESCBC();
+
+void textExtendKey();
 
 /*void InitialOTExample(int keysize, int choiceBit, string string0, string string1){
     InitialOT::Alice alice(choiceBit);
@@ -71,22 +71,19 @@ void timing1Of2OT() {
     elapsed = std::chrono::duration_cast<chrono::nanoseconds>(end - begin);
     printf("Time measured: %.3f seconds.\n", elapsed.count() * 1e-9);
 }*/
-std::string to_binary(const std::string& input)
-{
-    std::ostringstream oss;
-    for(auto c : input) {
-        oss << std::bitset<8>(c);
-    }
-    return oss.str();
-}
 
 int main() {
     //const char *string1 = "1111000101111010011111000101111010011111110001011110100111110001011110100111";
     //Integer a = Integer(string1);
     //cout << a << endl;
-    OTExtension::Sender sender(nullptr);
-    OTExtension::Receiver receiver("nullpointer");
-    InitialOT::BaseOT(2048,128, sender, receiver);
+    //AESCBC();
+    //YtextExtendKey();
+
+
+    //cout << OTExtension::SHA256HashString("test") << endl;
+    //OTExtension::Sender sender(nullptr);
+    //OTExtension::Receiver receiver("nullpointer");
+    //InitialOT::BaseOT(2048,128, sender, receiver);
     //timing1Of2OT();
 
     //sampleEncryption();
@@ -94,6 +91,76 @@ int main() {
     //testGroupParaInit();
 
     return 0;
+}
+
+void textExtendKey() {
+    tuple<uint64_t, uint64_t> a = InitialOT::GenerateKbitString(128);
+    cout << bitset<64>(get<0>(a)) << endl;
+    cout << bitset<64>(get<1>(a)) << endl;
+    cout << "extended to" << endl;
+
+    int size = 226;
+    auto extentedKey = OTExtension::extendKey(a, size);
+    //cout extendsKey
+    for (int i = 0; i < (size+64-1)/64; ++i) {
+        bitset<64> x(extentedKey[i]);
+        cout << x << endl;
+    }
+}
+
+
+void AESCBC() {
+    AutoSeededRandomPool prng;
+    HexEncoder encoder(new FileSink(cout));
+
+    SecByteBlock key(AES::DEFAULT_KEYLENGTH);
+    SecByteBlock iv(AES::BLOCKSIZE);
+
+    prng.GenerateBlock(key, key.size());
+    prng.GenerateBlock(iv, iv.size());
+
+    string plain = "CBC Mode Test";
+    string cipher, recovered;
+
+    cout << "plain text: " << plain << endl;
+
+    /*********************************\
+    \*********************************/
+
+    try
+    {
+        CBC_Mode< AES >::Encryption e;
+        e.SetKeyWithIV(key, key.size(), iv);
+
+        StringSource s(plain, true,
+                       new StreamTransformationFilter(e,
+                                                      new StringSink(cipher)
+                       ) // StreamTransformationFilter
+        ); // StringSource
+    }
+    catch(const Exception& e)
+    {
+        cerr << e.what() << endl;
+        exit(1);
+    }
+
+    /*********************************\
+    \*********************************/
+
+    cout << "key: ";
+    encoder.Put(key, key.size());
+    encoder.MessageEnd();
+    cout << endl;
+
+    cout << "iv: ";
+    encoder.Put(iv, iv.size());
+    encoder.MessageEnd();
+    cout << endl;
+
+    cout << "cipher text: ";
+    encoder.Put((const CryptoPP::byte*)&cipher[0], cipher.size());
+    encoder.MessageEnd();
+    cout << endl;
 }
 
 void testGroupParaInit() {
