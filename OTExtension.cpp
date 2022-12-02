@@ -187,7 +187,7 @@ string OTExtension::SHA256HashString(const string& aString){
 
 
 vector<string>
-OTExtension::OTExtensionProtocol(tuple<string,string>* senderStrings, vector<uint64_t> selectionBits, int k, int elgamalkeysize) {
+OTExtension::OTExtensionProtocol(tuple<string,string>* senderStrings, vector<uint64_t> selectionBits, int elgamalkeysize, int symmetricKeySize) {
     //Inputs
     cout<< "Starting OT Extension Protocol" << endl;
     OTExtension::Sender sender(senderStrings);
@@ -195,18 +195,18 @@ OTExtension::OTExtensionProtocol(tuple<string,string>* senderStrings, vector<uin
 
     //initial OT phase
     cout<< "Starting initial OT phase" << endl;
-    auto kresult = InitialOT::BaseOT(elgamalkeysize, k, sender, receiver);
+    auto kresult = InitialOT::BaseOT(elgamalkeysize, symmetricKeySize, sender, receiver);
     cout<< "Initial OT phase finished" << endl;
 
     //OT extension phase
     cout<< "Starting OT extension phase" << endl;
     int m = sizeof(senderStrings);
-    vector<vector<uint64_t>> umatrix = receiver.computeTandUMatricies(k, m);
+    vector<vector<uint64_t>> umatrix = receiver.computeTandUMatricies(symmetricKeySize, m);
     // receiver "sends" umatrix to sender
     cout << "Computing q matrix" << endl;
-    sender.computeQMatrix(k, umatrix, kresult, m);
+    sender.computeQMatrix(symmetricKeySize, umatrix, kresult, m);
     cout << "Computing y pairs" << endl;
-    vector<tuple<string,string>> yPairs = sender.generateYpairs(m, k);
+    vector<tuple<string,string>> yPairs = sender.generateYpairs(m, symmetricKeySize);
     // sender "sends" yPairs to receiver
     cout << "Computing result" << endl;
     auto result = receiver.computeResult(yPairs, m);

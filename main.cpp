@@ -79,10 +79,13 @@ int main() {
     //AESCBC();
     //YtextExtendKey();
 
+    vector<uint64_t> rcvString = {0,0};
+    OTExtension::OTExtensionProtocol(nullptr, rcvString, 128, 2048);
+
 
     //cout << OTExtension::SHA256HashString("test") << endl;
     //OTExtension::Sender sender(nullptr);
-    //OTExtension::Receiver receiver("nullpointer");
+    //OTExtension::Receiver receiver({0,0});
     //InitialOT::BaseOT(2048,128, sender, receiver);
     //timing1Of2OT();
 

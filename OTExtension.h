@@ -56,7 +56,7 @@ public:
     };
 public:
     static vector<string>
-    OTExtensionProtocol(tuple<string,string>* senderStrings, vector<uint64_t> selectionBits, int k, int elgamalkeysize);
+    OTExtensionProtocol(tuple<string,string>* senderStrings, vector<uint64_t> selectionBits, int elgamalkeysize, int symmetricKeySize);
     static string SHA256HashString(const string& aString);
     static vector<uint64_t> extendKey(const tuple<uint64_t, uint64_t>& key, int m);
 private:
