@@ -79,7 +79,20 @@ void doMExtendedOTs(int m, int l, int symmetricKeySize, int elgamalKeysize){
     vector<uint64_t> rcvSelectionBits(m);
     senderPairs = util::genMPairsOfLbitStrings(m, l);
     rcvSelectionBits = util::genRcvSelectionBits(m);
-    OTExtension::OTExtensionProtocol(senderPairs,rcvSelectionBits,symmetricKeySize,elgamalKeysize);
+    auto result = OTExtension::OTExtensionProtocol(senderPairs,rcvSelectionBits,symmetricKeySize,elgamalKeysize);
+
+    for (int i = 0; i < m; ++i) {
+        int choicebit = util::findithBit(rcvSelectionBits,i);
+        if(choicebit == 0){
+            if(result[i] != get<0>(senderPairs[i])){
+                cout<<"ERROR"<<endl;
+            }
+        }else{
+            if(result[i] != get<1>(senderPairs[i])){
+                cout<<"ERROR"<<endl;
+            }
+        }
+    }
 }
 
 int main() {

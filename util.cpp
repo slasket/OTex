@@ -64,9 +64,9 @@ string util::stringXor(string x, string y) //taken from https://stackoverflow.co
         cout << "x " << x << " and y " << y << " are not of equal length" << endl;
         return "";
     }
-    else{
-        cout << "x " << x << " and y " << y << " are of equal length" << endl;
-    }
+    //else{
+    //    cout << "x " << x << " and y " << y << " are of equal length" << endl;
+    //}
     // works properly only if they have same length!
     for(int i = 0; i < x.length(); i++)
     {
