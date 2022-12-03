@@ -7,6 +7,7 @@
 #include <cryptopp/sha.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/base64.h>
+#include <cryptopp/hex.h>
 #include <bitset>
 #include <cryptopp/osrng.h>
 #include <cryptopp/seckey.h>
@@ -58,6 +59,14 @@ string util::stringXor(string x, string y) //taken from https://stackoverflow.co
     stringstream ss;
     auto xlen = x.length();
     auto ylen = y.length();
+    //check if the strings are of equal length
+    if (xlen != ylen) {
+        cout << "x " << x << " and y " << y << " are not of equal length" << endl;
+        return "";
+    }
+    //else{
+    //    cout << "x " << x << " and y " << y << " are of equal length" << endl;
+    //}
     // works properly only if they have same length!
     for(int i = 0; i < x.length(); i++)
     {
@@ -116,7 +125,7 @@ string util::SHA256HashString(const string& aString){
 
     StringSource foo(aString, true,
                      new HashFilter(hash,
-                                    new Base64Encoder (
+                                    new HexEncoder (
                                             new StringSink(digest))));
 
     return digest;
@@ -139,6 +148,59 @@ tuple<uint64_t, uint64_t> util::str2bin(std::string t_){
         ret += bitset<8>(c).to_string();
     }
     return {std::stoull(ret.substr(0, 64), nullptr, 2), std::stoull(ret.substr(64, 64), nullptr, 2)};
+}
+
+string util::str2bitset(std::string t_){
+    std::string ret;
+    for (char c : t_) {
+        ret += bitset<8>(c).to_string();
+    }
+    return ret;
+}
+
+string util::str2hex(const std::string& t){
+    string strOf4bits = str2binVector(t);
+    return strOf4bits;
+    //convert strOf4bits to hex
+    //convert string of 0s and 1s to hex
+    //string hex;
+    //for (int i = 0; i < strOf4bits.length(); i = i + 4) {
+    //    string fourbits = strOf4bits.substr(i, 4);
+    //    if (fourbits == "0000") {
+    //        hex += "0";
+    //    } else if (fourbits == "0001") {
+    //        hex += "1";
+    //    } else if (fourbits == "0010") {
+    //        hex += "2";
+    //    } else if (fourbits == "0011") {
+    //        hex += "3";
+    //    } else if (fourbits == "0100") {
+    //        hex += "4";
+    //    } else if (fourbits == "0101") {
+    //        hex += "5";
+    //    } else if (fourbits == "0110") {
+    //        hex += "6";
+    //    } else if (fourbits == "0111") {
+    //        hex += "7";
+    //    } else if (fourbits == "1000") {
+    //        hex += "8";
+    //    } else if (fourbits == "1001") {
+    //        hex += "9";
+    //    } else if (fourbits == "1010") {
+    //        hex += "a";
+    //    } else if (fourbits == "1011") {
+    //        hex += "b";
+    //    } else if (fourbits == "1100") {
+    //        hex += "c";
+    //    } else if (fourbits == "1101") {
+    //        hex += "d";
+    //    } else if (fourbits == "1110") {
+    //        hex += "e";
+    //    } else if (fourbits == "1111") {
+    //        hex += "f";
+    //    }
+    //}
+    //return hex;
 }
 
 //AES-128 counter mode encryption
@@ -248,4 +310,50 @@ vector<uint64_t> util::genRcvSelectionBits(int bits) {
         res[blockNum]=bitset.to_ullong();
     }
    return res;
+}
+
+string util::str2binVector(const string &t_) {
+    std::string temp;
+    for (auto c : t_) {
+        temp += bitset<8>(c).to_string();
+    }
+    string ret;
+    for (int i = 0; i < temp.length(); i = i + 4) {
+        string fourbits = temp.substr(i, 4);
+        if (fourbits == "0000") {
+            ret += "0";
+        } else if (fourbits == "0001") {
+            ret += "1";
+        } else if (fourbits == "0010") {
+            ret += "2";
+        } else if (fourbits == "0011") {
+            ret += "3";
+        } else if (fourbits == "0100") {
+            ret += "4";
+        } else if (fourbits == "0101") {
+            ret += "5";
+        } else if (fourbits == "0110") {
+            ret += "6";
+        } else if (fourbits == "0111") {
+            ret += "7";
+        } else if (fourbits == "1000") {
+            ret += "8";
+        } else if (fourbits == "1001") {
+            ret += "9";
+        } else if (fourbits == "1010") {
+            ret += "A";
+        } else if (fourbits == "1011") {
+            ret += "B";
+        } else if (fourbits == "1100") {
+            ret += "C";
+        } else if (fourbits == "1101") {
+            ret += "D";
+        } else if (fourbits == "1110") {
+            ret += "E";
+        } else if (fourbits == "1111") {
+            ret += "F";
+        }
+    }
+
+    return ret;
 }

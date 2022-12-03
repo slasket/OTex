@@ -28,6 +28,12 @@ public:
     static vector<uint64_t> entryWiseAnd(int si, const vector<uint64_t> &umatrixi, int m);
     static vector<tuple<string,string>> genMPairsOfLbitStrings(int pairs,int strLen);
     static vector<uint64_t> genRcvSelectionBits(int bits);
+
+    static string str2hex(const string& t_);
+
+    static string str2bitset(string t_);
+
+    static string str2binVector(const string &t_);
 };
 
 

@@ -86,10 +86,10 @@ vector<tuple<string, string>> OTExtension::Sender::generateYpairs(int m, int k) 
     vector<tuple<string,string>> yPairs = vector<tuple<string,string>>(m);
     vector<vector<uint64_t>> transposedQMatrix = util::transposeMatrix(qmatrix);
     for (int i = 0; i < m; ++i) {
-        string y0 = util::stringXor(get<0>(senderStrings[i]), util::hFunction(i, transposedQMatrix[i]));
+        string y0 = util::stringXor(util::str2hex(get<0>(senderStrings[i])), util::hFunction(i, transposedQMatrix[i]));
         vector<uint64_t> initialOTkbits = vector<uint64_t>({get<0>(initialOTChoiceBits), get<1>(initialOTChoiceBits)});
         auto qiXORs = util::mbitXOR(transposedQMatrix[i], initialOTkbits, k);
-        string y1 = util::stringXor(get<1>(senderStrings[i]), util::hFunction(i, qiXORs));
+        string y1 = util::stringXor(util::str2hex(get<1>(senderStrings[i])), util::hFunction(i, qiXORs));
         yPairs[i] = make_tuple(y0, y1);
     }
     return yPairs;
