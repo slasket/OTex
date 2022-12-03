@@ -49,7 +49,7 @@ string util::hFunction(int i, vector<uint64_t> qmatrixi) {
 }
 
 vector<uint64_t> util::randomGenerator(tuple<uint64_t, uint64_t> ki, int m) {
-    //TODO: make sure the ith block corresponds to the iths least significant block of bits
+    //make sure the ith block corresponds to the iths least significant block of bits
     return extendKey(ki,m);
 }
 
@@ -84,8 +84,27 @@ vector<uint64_t> util::extendKey(const tuple<uint64_t, uint64_t>& key, int m) {
 }
 
 
-vector<vector<uint64_t>> util::tranposeMatrix(vector<vector<uint64_t>> matrix) {
-    return matrix; //TODO: implement
+vector<vector<uint64_t>> util::transposeMatrix(vector<vector<uint64_t>> matrix) {
+    //transposition by making one key at a time
+    bitset<64> higherbits;
+    bitset<64> lowerbits;
+    int k = matrix.size();
+    int m = matrix[0].size()*64;
+    vector<vector<uint64_t>> transposedMat = vector<vector<uint64_t>>(m, vector<uint64_t>(k));
+    for (int i = 0; i < m; ++i) {
+        for (int j = 0; j < k; ++j) {
+            if (j < 64) {
+                auto ithHigher = findithBit(matrix[j], i);
+                higherbits[63 - j] = ithHigher;
+            } else {
+                auto ithLower = findithBit(matrix[j], i);
+                lowerbits[127 - j] = ithLower;
+            }
+        }
+        transposedMat[i] = {higherbits.to_ullong(), lowerbits.to_ullong()};
+    }
+
+    return transposedMat;
 }
 
 string util::SHA256HashString(const string& aString){

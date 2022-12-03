@@ -83,6 +83,8 @@ int main() {
     OTExtension::OTExtensionProtocol(nullptr, rcvString, 2048, 128);
 
 
+
+
     //cout << OTExtension::SHA256HashString("test") << endl;
     //OTExtension::Sender sender(nullptr);
     //OTExtension::Receiver receiver({0,0});
@@ -126,10 +128,6 @@ void AESCBC() {
     string cipher, recovered;
 
     cout << "plain text: " << plain << endl;
-
-    /*********************************\
-    \*********************************/
-
     try
     {
         CBC_Mode< AES >::Encryption e;
@@ -146,10 +144,6 @@ void AESCBC() {
         cerr << e.what() << endl;
         exit(1);
     }
-
-    /*********************************\
-    \*********************************/
-
     cout << "key: ";
     encoder.Put(key, key.size());
     encoder.MessageEnd();

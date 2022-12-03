@@ -31,7 +31,7 @@ vector<vector<uint64_t>> OTExtension::Receiver::computeTandUMatricies(int symmet
 
 vector<string> OTExtension::Receiver::computeResult(vector<tuple<string, string>> yPairs, int m) {
     //transpose t matrix
-    vector<vector<uint64_t>> tMatrixTransposed = util::tranposeMatrix(tmatrix);
+    vector<vector<uint64_t>> tMatrixTransposed = util::transposeMatrix(tmatrix);
     vector<string> result = vector<string>(m);
     for (int i = 0; i < m; ++i) {//m might be wrong lol
         int choiceBit = util::findithBit(selectionBits, i);
@@ -80,7 +80,7 @@ void OTExtension::Sender::computeQMatrix(int symmetricKeysize, vector<vector<uin
 
 vector<tuple<string, string>> OTExtension::Sender::generateYpairs(int m, int k) {
     vector<tuple<string,string>> yPairs = vector<tuple<string,string>>(m);
-    vector<vector<uint64_t>> transposedQMatrix = util::tranposeMatrix(qmatrix);
+    vector<vector<uint64_t>> transposedQMatrix = util::transposeMatrix(qmatrix);
     for (int i = 0; i < m; ++i) {
         string y0 = util::stringXor(get<0>(senderStrings[i]), util::hFunction(i, transposedQMatrix[i]));
         vector<uint64_t> initialOTkbits = vector<uint64_t>({get<0>(initialOTChoiceBits), get<1>(initialOTChoiceBits)});
