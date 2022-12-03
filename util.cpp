@@ -56,11 +56,14 @@ vector<uint64_t> util::randomGenerator(tuple<uint64_t, uint64_t> ki, int m) {
 string util::stringXor(string x, string y) //taken from https://stackoverflow.com/questions/18830505/bitxor-on-c-strings
 {
     stringstream ss;
-
+    auto xlen = x.length();
+    auto ylen = y.length();
     // works properly only if they have same length!
     for(int i = 0; i < x.length(); i++)
     {
-        ss <<  (x.at(i) ^ y.at(i));
+        auto xchar =  x.at(i);
+        auto ychar = y.at(i);
+        ss <<  (xchar ^ ychar);
     }
 
     return ss.str();
@@ -84,7 +87,7 @@ vector<uint64_t> util::extendKey(const tuple<uint64_t, uint64_t>& key, int m) {
 }
 
 
-vector<vector<uint64_t>> util::transposeMatrix(vector<vector<uint64_t>> matrix) {
+vector<vector<uint64_t>> util::transposeMatrix(vector<vector<uint64_t>>& matrix) {
     //transposition by making one key at a time
     bitset<64> higherbits;
     bitset<64> lowerbits;
@@ -212,4 +215,37 @@ vector<uint64_t> util::entryWiseAnd(int si, const vector<uint64_t>& umatrixi, in
         res[i] = qi & andBit;
     }
     return res;
+}
+
+vector<tuple<string, string>> util::genMPairsOfLbitStrings(int pairs, int strLen) {
+    //since we use sha256 we should always use 256bit string length
+    AutoSeededRandomPool prng;
+    strLen=256;
+    auto senderPairs =  vector<tuple<string, string>>(pairs);
+    for (int i = 0; i < pairs; ++i) {
+        bitset<256> bs0;
+        bitset<256> bs1;
+        for (int j = 0; j < 256; ++j) {
+            bs0[j] = prng.GenerateBit();
+            bs1[j] = prng.GenerateBit();
+        }
+        //tooomany bitters
+        senderPairs[i] = {bin2str(bs0.to_string()),bin2str(bs1.to_string())};
+    }
+
+    return senderPairs;
+}
+
+vector<uint64_t> util::genRcvSelectionBits(int bits) {
+   AutoSeededRandomPool prng;
+   auto res = vector<uint64_t>((bits+64-1)/64);
+   bitset<64> bitset;
+
+    for (int blockNum = 0; blockNum <(bits+64-1)/64; ++blockNum) {
+        for (int i = 0; i < 64; ++i) {
+            bitset[i]=(prng.GenerateBit());
+        }
+        res[blockNum]=bitset.to_ullong();
+    }
+   return res;
 }

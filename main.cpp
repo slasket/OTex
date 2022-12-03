@@ -72,6 +72,16 @@ void timing1Of2OT() {
     printf("Time measured: %.3f seconds.\n", elapsed.count() * 1e-9);
 }*/
 
+void doMExtendedOTs(int m, int l, int symmetricKeySize, int elgamalKeysize){
+
+    //M is ALWAYS a multiple of 64!!!!
+    vector<tuple<string,string>> senderPairs(m);
+    vector<uint64_t> rcvSelectionBits(m);
+    senderPairs = util::genMPairsOfLbitStrings(m, l);
+    rcvSelectionBits = util::genRcvSelectionBits(m);
+    OTExtension::OTExtensionProtocol(senderPairs,rcvSelectionBits,symmetricKeySize,elgamalKeysize);
+}
+
 int main() {
     //const char *string1 = "1111000101111010011111000101111010011111110001011110100111110001011110100111";
     //Integer a = Integer(string1);
@@ -79,11 +89,10 @@ int main() {
     //AESCBC();
     //YtextExtendKey();
 
-    vector<uint64_t> rcvString = {0,0};
-    OTExtension::OTExtensionProtocol(nullptr, rcvString, 2048, 128);
+    //vector<uint64_t> rcvString = {0,0};
+    //OTExtension::OTExtensionProtocol(nullptr, rcvString, 128, 2048);
 
-
-
+    doMExtendedOTs(256,256,128,2048);
 
     //cout << OTExtension::SHA256HashString("test") << endl;
     //OTExtension::Sender sender(nullptr);

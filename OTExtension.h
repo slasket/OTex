@@ -18,15 +18,15 @@ public:
     class Receiver{
         vector<vector<uint64_t>> tmatrix;
         vector<uint64_t> selectionBits;
-        tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>>* kpairs;
+        vector<tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>>> kpairs;
 
     public:
         explicit Receiver(vector<uint64_t> sb){
             selectionBits = sb;
         };
 
-        void setKpairs(tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>> *kpairs) {
-            Receiver::kpairs = kpairs;
+        void setKpairs(vector<tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>>> chosenRandPairs) {
+            Receiver::kpairs = std::move(chosenRandPairs);
         }
         vector<vector<uint64_t>> computeTandUMatricies(int symmetricKeysize, int m);
 
@@ -36,10 +36,10 @@ public:
 
     class Sender{
         vector<vector<uint64_t>> qmatrix;
-        tuple<string,string>* senderStrings;
+        vector<tuple<string,string>> senderStrings;
         tuple<uint64_t, uint64_t> initialOTChoiceBits;
     public:
-        explicit Sender(tuple<string,string>* ss){
+        explicit Sender(vector<tuple<string,string>> ss){
             senderStrings = ss;
         };
         void setInitialOTChoiceBits(tuple<uint64_t, uint64_t> initialOTChoiceBits){
@@ -52,7 +52,8 @@ public:
 
     };
 public:
-    static vector<string> OTExtensionProtocol(tuple<string,string>* senderStrings, vector<uint64_t> selectionBits, int elgamalkeysize, int symmetricKeySize);
+    static vector<string> OTExtensionProtocol(vector<tuple<string, string>> senderStrings, vector<uint64_t> selectionBits,
+                                              int symmetricKeySize, int elgamalkeysize);
 
 };
 

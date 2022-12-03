@@ -48,7 +48,7 @@ public:
     static tuple<uint64_t, uint64_t> GenerateKbitString(const int keysize);
 
     static tuple<uint64_t, uint64_t> *
-    BaseOT(int const elgamalkeysize, int symmetricKeysize, OTExtension::Sender sender, OTExtension::Receiver receiver);
+    BaseOT(int const elgamalkeysize, int symmetricKeysize, OTExtension::Sender& sender, OTExtension::Receiver& receiver);
 
     static tuple<uint64_t, uint64_t> OT1out2(int keySize, const Integer& mod, const Integer& g, int choicebit, const tuple<uint64_t, uint64_t>& string0, const tuple<uint64_t, uint64_t>& string1);
 

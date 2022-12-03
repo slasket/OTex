@@ -13,12 +13,14 @@ using namespace std;
 using namespace CryptoPP;
 
 vector<vector<uint64_t>> OTExtension::Receiver::computeTandUMatricies(int symmetricKeysize, int m) {
-    tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>>* receiverPairs = kpairs;
+    vector<tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>>> receiverPairs = kpairs;
     //Generate t matrix
     tmatrix = vector<vector<uint64_t>>(symmetricKeysize, vector<uint64_t>((m+64-1)/64));
     vector<vector<uint64_t>> umatrix = vector<vector<uint64_t>>(symmetricKeysize, vector<uint64_t>((m+64-1)/64));
     for (int i = 0; i < symmetricKeysize; ++i) {
-        vector<uint64_t> t = util::randomGenerator(get<0>(receiverPairs[i]), m); //collumn t
+        auto currentpair=  receiverPairs[i];
+        auto ki = get<0>(currentpair);
+        vector<uint64_t> t = util::randomGenerator(ki, m); //collumn t
         tmatrix[i] = t;
 
         //int u = t ^ randomGenerator(get<1>(receiverPairs[i])) ^ stoi(selectionBits);
@@ -37,9 +39,11 @@ vector<string> OTExtension::Receiver::computeResult(vector<tuple<string, string>
         int choiceBit = util::findithBit(selectionBits, i);
         string x;
         if(choiceBit == 0){
-            x = util::stringXor(get<0>(yPairs[i]), util::hFunction(i, tMatrixTransposed[i]));
+            auto hfuck = util::hFunction(i, tMatrixTransposed[i]);
+            x = util::stringXor(get<0>(yPairs[i]), hfuck);
         } else{
-            x = util::stringXor(get<1>(yPairs[i]), util::hFunction(i, tMatrixTransposed[i]));
+            auto hfuck = util::hFunction(i, tMatrixTransposed[i]);
+            x = util::stringXor(get<1>(yPairs[i]), hfuck);
         }
         result[i] = x;
     }
@@ -49,7 +53,7 @@ vector<string> OTExtension::Receiver::computeResult(vector<tuple<string, string>
 void OTExtension::Sender::computeQMatrix(int symmetricKeysize, vector<vector<uint64_t>> umatrix,
                                          tuple<uint64_t, uint64_t> *kresults, int m) {
     tuple<uint64_t, uint64_t> &initalSenderString = initialOTChoiceBits;
-    int k = sizeof(umatrix);
+    int k = umatrix.size();
     qmatrix = vector<vector<uint64_t>>(symmetricKeysize, vector<uint64_t>());
     for (int i = 0; i < k; ++i) {
         //int si = int(initalSenderString[i]-'0');
@@ -95,7 +99,8 @@ vector<tuple<string, string>> OTExtension::Sender::generateYpairs(int m, int k) 
 
 
 vector<string>
-OTExtension::OTExtensionProtocol(tuple<string,string>* senderStrings, vector<uint64_t> selectionBits, int elgamalkeysize, int symmetricKeySize) {
+OTExtension::OTExtensionProtocol(vector<tuple<string, string>> senderStrings, vector<uint64_t> selectionBits,
+                                 int symmetricKeySize, int elgamalkeysize) {
     //Inputs
     cout<< "Starting OT Extension Protocol" << endl;
     OTExtension::Sender sender(senderStrings);
@@ -108,7 +113,7 @@ OTExtension::OTExtensionProtocol(tuple<string,string>* senderStrings, vector<uin
 
     //OT extension phase
     cout<< "Starting OT extension phase" << endl;
-    int m = sizeof(senderStrings);
+    int m = selectionBits.size()*64;
     vector<vector<uint64_t>> umatrix = receiver.computeTandUMatricies(symmetricKeySize, m);
     // receiver "sends" umatrix to sender
     cout << "Computing q matrix" << endl;

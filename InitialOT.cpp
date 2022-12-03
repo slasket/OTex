@@ -104,21 +104,24 @@ tuple<uint64_t, uint64_t> InitialOT::GenerateKbitString(int const k) {
 }
 
 
-tuple<uint64_t, uint64_t>* InitialOT::BaseOT(int const elgamalkeysize, int symmetricKeysize, OTExtension::Sender sender, OTExtension::Receiver receiver) {
+tuple<uint64_t, uint64_t>* InitialOT::BaseOT(int const elgamalkeysize, int symmetricKeysize, OTExtension::Sender& sender, OTExtension::Receiver& receiver) {
 
 
     //S choose a random string s
     tuple<uint64_t, uint64_t> initialOTChoiceBits = GenerateKbitString(symmetricKeysize);
 
     //Init group parameters
-    auto groupParaKey = elgamal::InitializeGroupParameters(elgamalkeysize);
-    Integer mod = groupParaKey.GetGroupParameters().GetModulus();
-    Integer g = groupParaKey.GetGroupParameters().GetGenerator();
-
+    //auto groupParaKey = elgamal::InitializeGroupParameters(elgamalkeysize);
+    //Integer mod = groupParaKey.GetGroupParameters().GetModulus();
+    //Integer g = groupParaKey.GetGroupParameters().GetGenerator();
+    Integer mod("27116049191505256263784855523797723975553564921607276577493997526291631279569122369847027536544391667432461448615575698337249152963126647280933395355596621192802732199252815662005480533690702737050115137493783942222614822345494204540888976090325814282122923034331559601288394898636347801746441337326774229495633839205081506187176586728440053775397129715038076224311504937586111691274934414582880412809681674266766531332848541880387464807922606949659251991951744452694321879285702283721136336698590539390027917128792587102374187765081984383149973451168741005071390186909346140945857286033586249386098657878796426911023");
+    Integer g = 2;
     //R chooses k pairs of k-bit seeds
-    auto* receiverPairs = new tuple<tuple<uint64_t, uint64_t>,tuple<uint64_t, uint64_t>>[symmetricKeysize];
+    auto receiverPairs = vector<tuple<tuple<uint64_t, uint64_t>,tuple<uint64_t, uint64_t>>>(symmetricKeysize);
     for (int i = 0; i < symmetricKeysize; ++i) {
-        receiverPairs[i] = {GenerateKbitString(symmetricKeysize),GenerateKbitString(symmetricKeysize)};
+        auto leftVal = GenerateKbitString(symmetricKeysize);
+        auto rightVal = GenerateKbitString(symmetricKeysize);
+        receiverPairs[i] = {leftVal,rightVal};
     }
 
     //Receiver saves kbitseeds
