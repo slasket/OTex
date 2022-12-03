@@ -92,6 +92,12 @@ int main() {
     //vector<uint64_t> rcvString = {0,0};
     //OTExtension::OTExtensionProtocol(nullptr, rcvString, 128, 2048);
 
+    //cout << util::reversestr2binVector("FF") << endl;
+    //auto xd = util::stringXor(util::reversestr2binVector("FF"), util::reversestr2binVector("AB"));
+    //cout << xd << endl;
+    //xd = util::stringXor(xd, util::reversestr2binVector("AB"));
+    //cout << xd << endl;
+
     doMExtendedOTs(256,256,128,2048);
 
     //cout << OTExtension::SHA256HashString("test") << endl;

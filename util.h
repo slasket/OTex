@@ -31,9 +31,11 @@ public:
 
     static string str2hex(const string& t_);
 
-    static string str2bitset(string t_);
+    static string str2bitstr(string t_);
 
     static string str2binVector(const string &t_);
+
+    static string reversestr2binVector(const string &t_);
 };
 
 

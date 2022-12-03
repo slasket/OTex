@@ -64,15 +64,13 @@ string util::stringXor(string x, string y) //taken from https://stackoverflow.co
         cout << "x " << x << " and y " << y << " are not of equal length" << endl;
         return "";
     }
-    //else{
-    //    cout << "x " << x << " and y " << y << " are of equal length" << endl;
-    //}
+    else{
+        cout << "x " << x << " and y " << y << " are of equal length" << endl;
+    }
     // works properly only if they have same length!
     for(int i = 0; i < x.length(); i++)
     {
-        auto xchar =  x.at(i);
-        auto ychar = y.at(i);
-        ss <<  (xchar ^ ychar);
+        ss << (x[i] ^ y[i]);
     }
 
     return ss.str();
@@ -150,7 +148,7 @@ tuple<uint64_t, uint64_t> util::str2bin(std::string t_){
     return {std::stoull(ret.substr(0, 64), nullptr, 2), std::stoull(ret.substr(64, 64), nullptr, 2)};
 }
 
-string util::str2bitset(std::string t_){
+string util::str2bitstr(std::string t_){
     std::string ret;
     for (char c : t_) {
         ret += bitset<8>(c).to_string();
@@ -356,4 +354,50 @@ string util::str2binVector(const string &t_) {
     }
 
     return ret;
+}
+
+//reverse str2binVector
+string util::reversestr2binVector(const string &t_) {
+    std::string temp;
+    for (auto c : t_) {
+        if (c == '0') {
+            temp += "0000";
+        } else if (c == '1') {
+            temp += "0001";
+        } else if (c == '2') {
+            temp += "0010";
+        } else if (c == '3') {
+            temp += "0011";
+        } else if (c == '4') {
+            temp += "0100";
+        } else if (c == '5') {
+            temp += "0101";
+        } else if (c == '6') {
+            temp += "0110";
+        } else if (c == '7') {
+            temp += "0111";
+        } else if (c == '8') {
+            temp += "1000";
+        } else if (c == '9') {
+            temp += "1001";
+        } else if (c == 'A') {
+            temp += "1010";
+        } else if (c == 'B') {
+            temp += "1011";
+        } else if (c == 'C') {
+            temp += "1100";
+        } else if (c == 'D') {
+            temp += "1101";
+        } else if (c == 'E') {
+            temp += "1110";
+        } else if (c == 'F') {
+            temp += "1111";
+        }
+    }
+    string ret;
+    for (int i = 0; i < temp.length(); i = i + 8) {
+        string eightbits = temp.substr(i, 8);
+        ret += (char) bitset<8>(eightbits).to_ulong();
+    }
+    return temp;
 }
