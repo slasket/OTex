@@ -50,30 +50,10 @@ public:
         vector<tuple<string, string>> generateYpairs(int m, int k);
 
 
-        vector<uint64_t> entryWiseAnd(int si, const vector<uint64_t>& umatrixi, int m);
-
-
     };
 public:
-    static vector<string>
-    OTExtensionProtocol(tuple<string,string>* senderStrings, vector<uint64_t> selectionBits, int elgamalkeysize, int symmetricKeySize);
-    static string SHA256HashString(const string& aString);
-    static vector<uint64_t> extendKey(const tuple<uint64_t, uint64_t>& key, int m);
-private:
-    static vector<uint64_t> randomGenerator(tuple<uint64_t, uint64_t> ki, int m);
+    static vector<string> OTExtensionProtocol(tuple<string,string>* senderStrings, vector<uint64_t> selectionBits, int elgamalkeysize, int symmetricKeySize);
 
-    static string stringXor(std::string x, std::string y);
-
-    static string hFunction(int i, vector<uint64_t> qmatrixi);
-
-    static vector<uint64_t> mbitXOR(vector<uint64_t> pInt, vector<uint64_t> pInt1, int m);
-
-    static vector<vector<uint64_t>> tranposeMatrix(vector<vector<uint64_t>> matrix);
-
-    static int findithBit(vector<uint64_t> ui, int i);
-
-
-    static tuple<uint64_t, uint64_t> AES128CounterMode(tuple<uint64_t, uint64_t> plaintext);
 };
 
 

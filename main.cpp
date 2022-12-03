@@ -12,7 +12,7 @@
 #include "cryptopp/hex.h"
 #include "cryptopp/files.h"
 #include "cryptopp/modes.h"
-
+#include "util.h"
 
 
 void sampleEncryption();
@@ -80,7 +80,7 @@ int main() {
     //YtextExtendKey();
 
     vector<uint64_t> rcvString = {0,0};
-    OTExtension::OTExtensionProtocol(nullptr, rcvString, 128, 2048);
+    OTExtension::OTExtensionProtocol(nullptr, rcvString, 2048, 128);
 
 
     //cout << OTExtension::SHA256HashString("test") << endl;
@@ -103,7 +103,7 @@ void textExtendKey() {
     cout << "extended to" << endl;
 
     int size = 226;
-    auto extentedKey = OTExtension::extendKey(a, size);
+    auto extentedKey = util::extendKey(a, size);
     //cout extendsKey
     for (int i = 0; i < (size+64-1)/64; ++i) {
         bitset<64> x(extentedKey[i]);

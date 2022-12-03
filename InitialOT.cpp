@@ -4,7 +4,6 @@
 
 #include "InitialOT.h"
 #include "elgamal.h"
-#include "cryptopp/elgamal.h"
 #include "cryptopp/osrng.h"
 #include <bitset>
 #include <utility>
