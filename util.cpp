@@ -29,12 +29,16 @@ vector<uint64_t> util::mbitXOR(vector<uint64_t> &pInt, vector<uint64_t> &pInt1, 
 
 int util::findithBit(vector<uint64_t> ui, int i) {
     int size = ui.size();
-    string uiString;
-    for (int j = 0; j < size; ++j) {
-        string block = bitset<64>(ui[j]).to_string();
-        uiString += block;
-    }
-    return uiString[i] - '0';
+    //ith bit
+    int bit = i % 64;
+    //find block
+    int block = i / 64;
+    string blockStr = bitset<64>(ui[block]).to_string();
+    return blockStr[bit] - '0';
+    //for (int j = 0; j < size; ++j) {
+    //    string block = bitset<64>(ui[j]).to_string();
+    //    uiString += block;
+    //}
     ////find number of blocks
     //int block = (i / 64);
     //int bit = i % 64;
