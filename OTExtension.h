@@ -16,11 +16,11 @@ using namespace std;
 class OTExtension {
 public:
     class Receiver{
-        vector<vector<uint64_t>> tmatrix;
-        vector<uint64_t> selectionBits;
-        vector<tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>>> kpairs;
 
     public:
+        vector<tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>>> kpairs;
+        vector<vector<uint64_t>> tmatrix;
+        vector<uint64_t> selectionBits;
         explicit Receiver(vector<uint64_t> sb){
             selectionBits = sb;
         };
@@ -35,10 +35,10 @@ public:
     };
 
     class Sender{
-        vector<vector<uint64_t>> qmatrix;
         vector<tuple<string,string>> senderStrings;
-        tuple<uint64_t, uint64_t> initialOTChoiceBits;
     public:
+        vector<vector<uint64_t>> qmatrix;
+        tuple<uint64_t, uint64_t> initialOTChoiceBits;
         explicit Sender(vector<tuple<string,string>> ss){
             senderStrings = ss;
         };
@@ -47,7 +47,7 @@ public:
         }
         void computeQMatrix(int symmetricKeysize, vector<vector<uint64_t>> umatrix,
                             tuple<uint64_t, uint64_t> *kresults, int m);
-        vector<tuple<string, string>> generateYpairs(int m, int k);
+        vector<tuple<string, string>> generateYpairs(int m, int k, Receiver receiver);
 
 
     };
@@ -55,6 +55,7 @@ public:
     static vector<string> OTExtensionProtocol(vector<tuple<string, string>> senderStrings, vector<uint64_t> selectionBits,
                                               int symmetricKeySize, int elgamalkeysize);
 
+    static void sanityCheck(Sender sender, Receiver receiver, int size, int m);
 };
 
 

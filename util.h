@@ -17,7 +17,7 @@ public:
     static vector<uint64_t> randomGenerator(tuple<uint64_t, uint64_t> ki, int m);
     static string stringXor(string x, string y);
     static string hFunction(int i, vector<uint64_t> qmatrixi);
-    static vector<uint64_t> mbitXOR(vector<uint64_t> pInt, vector<uint64_t> pInt1, int m);
+    static vector<uint64_t> mbitXOR(vector<uint64_t> &pInt, vector<uint64_t> &pInt1, int m);
     static vector<vector<uint64_t>> transposeMatrix(vector<vector<uint64_t>>& matrix);
     static int findithBit(vector<uint64_t> ui, int i);
     static tuple<uint64_t, uint64_t> AES128CounterMode(tuple<uint64_t, uint64_t> plaintext);
@@ -29,13 +29,15 @@ public:
     static vector<tuple<string,string>> genMPairsOfLbitStrings(int pairs,int strLen);
     static vector<uint64_t> genRcvSelectionBits(int bits);
 
-    static string str2hex(const string& t_);
+    static string printBitsetofVectorofUints(vector<uint64_t> uints);
 
     static string str2bitstr(string t_);
 
     static string str2binVector(const string &t_);
 
     static string reversestr2binVector(const string &t_);
+
+    //static int findithBitinvectorofuint64_t(vector<uint64_t> ui, int i);
 };
 
 

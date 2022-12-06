@@ -18,7 +18,7 @@ using namespace std;
 using namespace CryptoPP;
 
 
-vector<uint64_t> util::mbitXOR(vector<uint64_t> pInt, vector<uint64_t> pInt1, int m) {
+vector<uint64_t> util::mbitXOR(vector<uint64_t> &pInt, vector<uint64_t> &pInt1, int m) {
     auto res = vector<uint64_t>((m+64-1)/64);
     for (int i = 0; i < (m+64-1)/64; ++i) {
         //Xor two 64 bit uint64_t integers
@@ -28,14 +28,19 @@ vector<uint64_t> util::mbitXOR(vector<uint64_t> pInt, vector<uint64_t> pInt1, in
 }
 
 int util::findithBit(vector<uint64_t> ui, int i) {
-    //find number of blocks
-    int block = (i / 64);
-    int bit = i % 64;
-    uint64_t ithblock = ui[block];
-    uint64_t mask = 1 << bit;
-    return (ithblock & mask) >> bit;
+    int size = ui.size();
+    string uiString;
+    for (int j = 0; j < size; ++j) {
+        string block = bitset<64>(ui[j]).to_string();
+        uiString += block;
+    }
+    return uiString[i] - '0';
+    ////find number of blocks
+    //int block = (i / 64);
+    //int bit = i % 64;
+    //uint64_t ithblock = ui[block];
+    //return bitset<64>(ithblock)[bit];
 }
-
 
 string util::hFunction(int i, vector<uint64_t> qmatrixi) {
     //convert qmatrixi to string
@@ -156,57 +161,21 @@ string util::str2bitstr(std::string t_){
     return ret;
 }
 
-string util::str2hex(const std::string& t){
-    string strOf4bits = str2binVector(t);
-    return strOf4bits;
-    //convert strOf4bits to hex
-    //convert string of 0s and 1s to hex
-    //string hex;
-    //for (int i = 0; i < strOf4bits.length(); i = i + 4) {
-    //    string fourbits = strOf4bits.substr(i, 4);
-    //    if (fourbits == "0000") {
-    //        hex += "0";
-    //    } else if (fourbits == "0001") {
-    //        hex += "1";
-    //    } else if (fourbits == "0010") {
-    //        hex += "2";
-    //    } else if (fourbits == "0011") {
-    //        hex += "3";
-    //    } else if (fourbits == "0100") {
-    //        hex += "4";
-    //    } else if (fourbits == "0101") {
-    //        hex += "5";
-    //    } else if (fourbits == "0110") {
-    //        hex += "6";
-    //    } else if (fourbits == "0111") {
-    //        hex += "7";
-    //    } else if (fourbits == "1000") {
-    //        hex += "8";
-    //    } else if (fourbits == "1001") {
-    //        hex += "9";
-    //    } else if (fourbits == "1010") {
-    //        hex += "a";
-    //    } else if (fourbits == "1011") {
-    //        hex += "b";
-    //    } else if (fourbits == "1100") {
-    //        hex += "c";
-    //    } else if (fourbits == "1101") {
-    //        hex += "d";
-    //    } else if (fourbits == "1110") {
-    //        hex += "e";
-    //    } else if (fourbits == "1111") {
-    //        hex += "f";
-    //    }
-    //}
-    //return hex;
+string util::printBitsetofVectorofUints(vector<uint64_t> uints){
+    string res;
+    for (int i = 0; i < uints.size(); ++i) {
+        res += bitset<64>(uints[i]).to_string();
+    }
+    return res;
 }
 
 //AES-128 counter mode encryption
 tuple<uint64_t, uint64_t> util::AES128CounterMode(tuple<uint64_t, uint64_t> plaintext) {
-    AutoSeededRandomPool prng;
+    word32 seed = 0x12345678; //TODO: change to random
+    LC_RNG prng = LC_RNG(seed);
 
-    SecByteBlock key(AES::DEFAULT_KEYLENGTH);
-    prng.GenerateBlock( key, key.size() );
+    CryptoPP::byte key[AES::DEFAULT_KEYLENGTH];
+    prng.GenerateBlock( key, sizeof(key) );
 
     CryptoPP::byte ctr[ AES::BLOCKSIZE ];
     prng.GenerateBlock( ctr, sizeof(ctr) );
@@ -232,7 +201,7 @@ tuple<uint64_t, uint64_t> util::AES128CounterMode(tuple<uint64_t, uint64_t> plai
     {
 
         CTR_Mode< AES >::Encryption e;
-        e.SetKeyWithIV( key, key.size(), ctr );
+        e.SetKeyWithIV( key, sizeof(key), ctr );
 
         // The StreamTransformationFilter adds padding
         //  as required. ECB and CBC Mode must be padded

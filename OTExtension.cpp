@@ -35,8 +35,11 @@ vector<string> OTExtension::Receiver::computeResult(vector<tuple<string, string>
     //transpose t matrix
     vector<vector<uint64_t>> tMatrixTransposed = util::transposeMatrix(tmatrix);
     vector<string> result = vector<string>(m);
+    string choicebits;
     for (int i = 0; i < m; ++i) {//m might be wrong lol
         int choiceBit = util::findithBit(selectionBits, i);
+        //int choiceBit = rcvSelectionBitsBitset[i];
+        choicebits += to_string(choiceBit);
         string x;
         if(choiceBit == 0){
             auto hfuck = util::hFunction(i, tMatrixTransposed[i]);
@@ -47,6 +50,8 @@ vector<string> OTExtension::Receiver::computeResult(vector<tuple<string, string>
         }
         result[i] = x;
     }
+
+    cout << "choicebits: " << choicebits << endl;
     return result;
 }
 
@@ -82,15 +87,39 @@ void OTExtension::Sender::computeQMatrix(int symmetricKeysize, vector<vector<uin
 
 
 
-vector<tuple<string, string>> OTExtension::Sender::generateYpairs(int m, int k) {
+vector<tuple<string, string>> OTExtension::Sender::generateYpairs(int m, int k, Receiver receiver) {
     vector<tuple<string,string>> yPairs = vector<tuple<string,string>>(m);
     vector<vector<uint64_t>> transposedQMatrix = util::transposeMatrix(qmatrix);
+    auto transposedTMatrix = util::transposeMatrix(receiver.tmatrix);
+    int counter = 0;
     for (int i = 0; i < m; ++i) {
         string y0 = util::stringXor(util::str2bitstr(get<0>(senderStrings[i])), util::reversestr2binVector(util::hFunction(i, transposedQMatrix[i])));
         vector<uint64_t> initialOTkbits = vector<uint64_t>({get<0>(initialOTChoiceBits), get<1>(initialOTChoiceBits)});
+        cout << "initialOTkbits   " << util::printBitsetofVectorofUints(initialOTkbits) << endl;
+        cout << "transposedTMatrix" << util::printBitsetofVectorofUints(transposedTMatrix[i]) << endl;
         auto qiXORs = util::mbitXOR(transposedQMatrix[i], initialOTkbits, k);
-        string y1 = util::stringXor(util::str2bitstr(get<1>(senderStrings[i])), util::reversestr2binVector(util::hFunction(i, qiXORs)));
+        auto qiXORsStringXOR = util::stringXor(util::printBitsetofVectorofUints(initialOTkbits), util::printBitsetofVectorofUints(transposedTMatrix[i]));
+        cout << "qiXORs           " << util::printBitsetofVectorofUints(qiXORs) << endl;
+        cout << "qiXORsStringXOR  " << qiXORsStringXOR << endl;
+        //convert first 64 chars of qiXORsStringXOR to bitset
+        bitset<64> qiXORsStringXORBitset0(qiXORsStringXOR.substr( 0, 64));
+        bitset<64> qiXORsStringXORBitset1(qiXORsStringXOR.substr(64, 64));
+        vector<uint64_t> qiXORsStringXORBitset = vector<uint64_t>({qiXORsStringXORBitset0.to_ullong(), qiXORsStringXORBitset1.to_ullong()});
+        string x1 = util::str2bitstr(get<1>(senderStrings[i]));
+        string hqXors = util::reversestr2binVector(util::hFunction(i, qiXORsStringXORBitset));
+        string y1 = util::stringXor(x1, hqXors);
+        string sanityy1 = util::stringXor(y1, util::reversestr2binVector(util::hFunction(i, transposedTMatrix[i])));
+        if(sanityy1 != x1){
+            cout << "y1 sanity check failed" << endl;
+            cout << "y1:          " << y1 << endl;
+            cout << "y1 sanity:   " << sanityy1 << endl;
+            cout << "y1 original: " << util::str2bitstr(get<1>(senderStrings[i])) << endl;
+            counter++;
+        }
         yPairs[i] = make_tuple(y0, y1);
+    }
+    if(counter > 0){
+        cout << "y1 sanity check failed " << counter << " times" << endl;
     }
     return yPairs;
 }
@@ -118,12 +147,62 @@ OTExtension::OTExtensionProtocol(vector<tuple<string, string>> senderStrings, ve
     // receiver "sends" umatrix to sender
     cout << "Computing q matrix" << endl;
     sender.computeQMatrix(symmetricKeySize, umatrix, kresult, m);
+    sanityCheck(sender, receiver, symmetricKeySize, m);
     cout << "Computing y pairs" << endl;
-    vector<tuple<string,string>> yPairs = sender.generateYpairs(m, symmetricKeySize);
+    vector<tuple<string,string>> yPairs = sender.generateYpairs(m, symmetricKeySize, receiver);
     // sender "sends" yPairs to receiver
     cout << "Computing result" << endl;
     auto result = receiver.computeResult(yPairs, m);
     return result;
+}
+
+void OTExtension::sanityCheck(OTExtension::Sender sender, OTExtension::Receiver receiver, int size, int m) {
+    auto kpairs = receiver.kpairs;
+    auto qmatrix = sender.qmatrix;
+    auto tmatrix = receiver.tmatrix;
+    auto initalSenderString = sender.initialOTChoiceBits;
+    auto noteqmatrix = vector<vector<uint64_t>>(size, vector<uint64_t>());
+    int correctcounter = 0;
+    int zeroes = 0;
+    int ones = 0;
+    for (int i = 0; i < size; ++i) {
+        int si = InitialOT::findUIntBit(i, initalSenderString);
+        int notsi = 1- si;
+        //qmatrix[i] = siui ^ randomGenerator(kresults[i], 0);
+        vector<uint64_t> notti;
+        if (notsi == 0){
+            notti = util::randomGenerator(get<0>(kpairs[i]), m);
+        } else{
+            notti = util::randomGenerator(get<0>(kpairs[i]), m);
+        }
+        auto sir = util::entryWiseAnd(si, receiver.selectionBits, m);
+        noteqmatrix[i] = util::mbitXOR(sir, notti, m);
+        if(noteqmatrix[i] == sender.qmatrix[i]){
+            //cout << "qmatrix sanity check passed" << endl;
+            correctcounter++;
+            if (si == 0){
+                zeroes++;
+            } else{
+                ones++;
+            }
+        } else{
+            cout << "qmatrix sanity check failed" << endl;
+            //convert sender.qmatrix[i] to bitset
+            cout << "sender.qmatrix[i]" << endl;
+            for (int j = 0; j < m/64; ++j) {
+                cout << bitset<64>(sender.qmatrix[i][j]);
+            }
+            cout << endl;
+            cout << "noteqmatrix[i]" << endl;
+            for (int j = 0; j < m/64; ++j) {
+                cout << bitset<64>(noteqmatrix[i][j]);
+            }
+            cout << endl;
+        }
+    }
+    cout << "correctcounter: " << correctcounter << endl;
+    cout << "zeroes: " << zeroes << endl;
+    cout << "ones: " << ones << endl;
 }
 
 

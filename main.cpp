@@ -44,6 +44,10 @@ void AESCBC();
 
 void textExtendKey();
 
+void testFindInt();
+
+void testTransposeMatrix();
+
 /*void InitialOTExample(int keysize, int choiceBit, string string0, string string1){
     InitialOT::Alice alice(choiceBit);
     InitialOT::Bob bob(string0, string1);
@@ -81,18 +85,55 @@ void doMExtendedOTs(int m, int l, int symmetricKeySize, int elgamalKeysize){
     rcvSelectionBits = util::genRcvSelectionBits(m);
     auto result = OTExtension::OTExtensionProtocol(senderPairs,rcvSelectionBits,symmetricKeySize,elgamalKeysize);
 
+    //reverse result vector
+    //reverse(result.begin(),result.end());
+    //convert rcvSelectionBits to bitset
+
+    string choicebits;
+    int correctcounter = 0;
+    int incorrectcounter = 0;
+    int zeroes = 0;
+    int ones = 0;
     for (int i = 0; i < m; ++i) {
         int choicebit = util::findithBit(rcvSelectionBits,i);
+
+        choicebits += to_string(choicebit);
         if(choicebit == 0){
-            if(result[i] != get<0>(senderPairs[i])){
-                cout<<"ERROR"<<endl;
+            if(result[i] == util::str2bitstr(get<0>(senderPairs[i])) ){
+                //cout<<"res: "<<result[i]<<endl;
+                //cout<<"par: "<<util::str2bitstr(get<0>(senderPairs[i]))<<endl;
+                correctcounter++;
+                zeroes++;
+            } else {
+                //cout<<"res: "<<result[i]<<endl;
+                //cout<<"par: "<<util::str2bitstr(get<0>(senderPairs[i]))<<endl;
+                incorrectcounter++;
             }
         }else{
-            if(result[i] != get<1>(senderPairs[i])){
-                cout<<"ERROR"<<endl;
+            if(result[i] == util::str2bitstr(get<1>(senderPairs[i])) ){
+                //cout<<"res: "<<result[i]<<endl;
+                //cout<<"par: "<<util::str2bitstr(get<1>(senderPairs[i]))<<endl;
+                correctcounter++;
+                ones++;
+            } else {
+                //cout<<"res: "<<result[i]<<endl;
+                //cout<<"par: "<<util::str2bitstr(get<1>(senderPairs[i]))<<endl;
+                incorrectcounter++;
             }
         }
     }
+    //reverse findIntchoicebits
+    //string findIntchoicebitsReversed;
+    //for (int i = 0; i < findIntchoicebits.length(); ++i) {
+    //    findIntchoicebitsReversed += findIntchoicebits[findIntchoicebits.length()-1-i];
+    //}
+    //cout << "findIn Rev: " << findIntchoicebitsReversed << endl;
+    //count where choicebits and findIntchoicebits differ
+
+    cout << "correct: " << correctcounter << endl;
+    cout << "incorrect: " << incorrectcounter << endl;
+    cout<<"zeroes: "<<zeroes<<endl;
+    cout<<"ones: "<<ones<<endl;
 }
 
 int main() {
@@ -111,7 +152,24 @@ int main() {
     //xd = util::stringXor(xd, util::reversestr2binVector("AB"));
     //cout << xd << endl;
 
+    //testFindInt();
+    //tuple<uint64_t, uint64_t> test = InitialOT::GenerateKbitString(128);
+    //auto output = util::AES128CounterMode(test);
+
+
     doMExtendedOTs(256,256,128,2048);
+
+    //testTransposeMatrix();
+
+    //string string0 = util::reversestr2binVector(util::SHA256HashString("test"));
+    //cout << string0 << endl;
+    //string string1 = util::reversestr2binVector(util::SHA256HashString("test"));
+    //cout << string1 << endl;
+    //string string2 = util::stringXor(string0, string1);
+    //cout << string2 << endl;
+    //string string3 = util::stringXor(string2, string1);
+    //cout << string3 << endl;
+
 
     //cout << OTExtension::SHA256HashString("test") << endl;
     //OTExtension::Sender sender(nullptr);
@@ -124,6 +182,75 @@ int main() {
     //testGroupParaInit();
 
     return 0;
+}
+
+void testTransposeMatrix() {
+    vector<vector<uint64_t>> matrix;
+    for (int i = 0; i < 128; ++i) {
+        vector<uint64_t> t;
+        tuple<uint64_t ,uint64_t > temp = InitialOT::GenerateKbitString(128);
+        tuple<uint64_t ,uint64_t > temp2 = InitialOT::GenerateKbitString(128);
+        //put tuples into t
+        t.push_back(get<0>(temp));
+        t.push_back(get<1>(temp));
+        t.push_back(get<0>(temp2));
+        t.push_back(get<1>(temp2));
+        matrix.push_back(t);
+    }
+    cout << matrix.size() << endl;
+    cout << matrix[0].size()*64 << endl;
+    vector<vector<uint64_t>> transposedMatrix = util::transposeMatrix(matrix);
+    cout << transposedMatrix.size() << endl;
+    cout << transposedMatrix[0].size()*64 << endl;
+
+    //get 0th column of matrix
+    string ithColumn;
+    for (int i = 0; i < matrix.size(); ++i) {
+        //get the ith uint64_t of the column
+        uint64_t temp = matrix[i][1];
+        //convert to bitset
+        bitset<64> tempBitset(temp);
+        //get the most significant bit of the bitset
+        string tempString = to_string(tempBitset[63]);
+        //append to ithColumn
+        ithColumn += tempString;
+    }
+    cout << ithColumn << endl;
+
+    //cout transposedMatrix[0][0] as bitset
+    string result = bitset<64>(transposedMatrix[64][0]).to_string()+ bitset<64>(transposedMatrix[64][1]).to_string();
+    cout << result << endl;
+
+    assert(ithColumn == result);
+}
+
+void testFindInt() {
+    int m = 256;
+    vector<uint64_t> rcvSelectionBits(m);
+    rcvSelectionBits = util::genRcvSelectionBits(m);
+    //convert rcvSelectionBits to bitset
+    string rcvSelectionBitsString;
+    for (int i = 0; i < m/64; ++i) {
+        rcvSelectionBitsString += bitset<64>(rcvSelectionBits[i]).to_string();
+    }
+    bitset<256> rcvSelectionBitsBitset(rcvSelectionBitsString);
+
+    cout << rcvSelectionBitsBitset << endl;
+    string choicebits;
+    string findintchoicebits;
+ //   string finduglychoicebits;
+    for (int i = 0; i < m; ++i) {
+        int choicebit = rcvSelectionBitsBitset[i];
+        int findintchoicebit = util::findithBit(rcvSelectionBits, i);
+//        int finduglychoicebit = util::findithBitinvectorofuint64_t(rcvSelectionBits, m-1-i);
+        choicebits += to_string(choicebit);
+        findintchoicebits += to_string(findintchoicebit);
+//        finduglychoicebits += to_string(finduglychoicebit);
+
+    }
+    cout << "choicebits: " << choicebits << endl;
+    cout << "findintcho: " << findintchoicebits << endl;
+  //  cout << "finduglych: " << finduglychoicebits << endl;
 }
 
 void textExtendKey() {
