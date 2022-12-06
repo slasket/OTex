@@ -47,7 +47,7 @@ public:
         }
         void computeQMatrix(int symmetricKeysize, vector<vector<uint64_t>> umatrix,
                             tuple<uint64_t, uint64_t> *kresults, int m);
-        vector<tuple<string, string>> generateYpairs(int m, int k, Receiver receiver);
+        vector<tuple<string, string>> generateYpairs(int m, int k);
 
 
     };

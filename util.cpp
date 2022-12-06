@@ -370,3 +370,11 @@ string util::reversestr2binVector(const string &t_) {
     }
     return temp;
 }
+
+bitset<64> util::reverseBitset(bitset<64> bitset1) {
+    bitset<64> bitset2;
+    for (int i = 0; i < 64; ++i) {
+        bitset2[i] = bitset1[63 - i];
+    }
+    return bitset2;
+}

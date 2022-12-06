@@ -157,7 +157,7 @@ int main() {
     //auto output = util::AES128CounterMode(test);
 
 
-    doMExtendedOTs(256,256,128,2048);
+    doMExtendedOTs(1048576,256,128,2048);
 
     //testTransposeMatrix();
 

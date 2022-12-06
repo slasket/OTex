@@ -87,20 +87,19 @@ void OTExtension::Sender::computeQMatrix(int symmetricKeysize, vector<vector<uin
 
 
 
-vector<tuple<string, string>> OTExtension::Sender::generateYpairs(int m, int k, Receiver receiver) {
+vector<tuple<string, string>> OTExtension::Sender::generateYpairs(int m, int k) {
     vector<tuple<string,string>> yPairs = vector<tuple<string,string>>(m);
     vector<vector<uint64_t>> transposedQMatrix = util::transposeMatrix(qmatrix);
-    auto transposedTMatrix = util::transposeMatrix(receiver.tmatrix);
     int counter = 0;
     for (int i = 0; i < m; ++i) {
         string y0 = util::stringXor(util::str2bitstr(get<0>(senderStrings[i])), util::reversestr2binVector(util::hFunction(i, transposedQMatrix[i])));
-        vector<uint64_t> initialOTkbits = vector<uint64_t>({get<0>(initialOTChoiceBits), get<1>(initialOTChoiceBits)});
-        cout << "initialOTkbits   " << util::printBitsetofVectorofUints(initialOTkbits) << endl;
-        cout << "transposedTMatrix" << util::printBitsetofVectorofUints(transposedTMatrix[i]) << endl;
-        auto qiXORs = util::mbitXOR(transposedQMatrix[i], initialOTkbits, k);
-        auto qiXORsStringXOR = util::stringXor(util::printBitsetofVectorofUints(initialOTkbits), util::printBitsetofVectorofUints(transposedTMatrix[i]));
-        cout << "qiXORs           " << util::printBitsetofVectorofUints(qiXORs) << endl;
-        cout << "qiXORsStringXOR  " << qiXORsStringXOR << endl;
+        bitset<64> iniOTbits0(get<0>(initialOTChoiceBits));
+        bitset<64> iniOTbits1(get<1>(initialOTChoiceBits));
+        //reverse iniOTbits0 and iniOTbits1
+        iniOTbits0 = util::reverseBitset(iniOTbits0);
+        iniOTbits1 = util::reverseBitset(iniOTbits1);
+        vector<uint64_t> initialOTkbits = vector<uint64_t>({iniOTbits1.to_ullong(), iniOTbits0.to_ullong()});
+        auto qiXORsStringXOR = util::stringXor(util::printBitsetofVectorofUints(transposedQMatrix[i]), util::printBitsetofVectorofUints(initialOTkbits));
         //convert first 64 chars of qiXORsStringXOR to bitset
         bitset<64> qiXORsStringXORBitset0(qiXORsStringXOR.substr( 0, 64));
         bitset<64> qiXORsStringXORBitset1(qiXORsStringXOR.substr(64, 64));
@@ -108,18 +107,7 @@ vector<tuple<string, string>> OTExtension::Sender::generateYpairs(int m, int k, 
         string x1 = util::str2bitstr(get<1>(senderStrings[i]));
         string hqXors = util::reversestr2binVector(util::hFunction(i, qiXORsStringXORBitset));
         string y1 = util::stringXor(x1, hqXors);
-        string sanityy1 = util::stringXor(y1, util::reversestr2binVector(util::hFunction(i, transposedTMatrix[i])));
-        if(sanityy1 != x1){
-            cout << "y1 sanity check failed" << endl;
-            cout << "y1:          " << y1 << endl;
-            cout << "y1 sanity:   " << sanityy1 << endl;
-            cout << "y1 original: " << util::str2bitstr(get<1>(senderStrings[i])) << endl;
-            counter++;
-        }
         yPairs[i] = make_tuple(y0, y1);
-    }
-    if(counter > 0){
-        cout << "y1 sanity check failed " << counter << " times" << endl;
     }
     return yPairs;
 }
@@ -149,7 +137,7 @@ OTExtension::OTExtensionProtocol(vector<tuple<string, string>> senderStrings, ve
     sender.computeQMatrix(symmetricKeySize, umatrix, kresult, m);
     sanityCheck(sender, receiver, symmetricKeySize, m);
     cout << "Computing y pairs" << endl;
-    vector<tuple<string,string>> yPairs = sender.generateYpairs(m, symmetricKeySize, receiver);
+    vector<tuple<string,string>> yPairs = sender.generateYpairs(m, symmetricKeySize);
     // sender "sends" yPairs to receiver
     cout << "Computing result" << endl;
     auto result = receiver.computeResult(yPairs, m);

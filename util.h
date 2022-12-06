@@ -6,6 +6,7 @@
 #define OTEX_UTIL_H
 
 #include <string>
+#include <bitset>
 
 using namespace std;
 
@@ -35,9 +36,12 @@ public:
 
     static string str2binVector(const string &t_);
 
+    static bitset<64> reverseBitset(bitset<64> bitset1);
+
     static string reversestr2binVector(const string &t_);
 
     //static int findithBitinvectorofuint64_t(vector<uint64_t> ui, int i);
+
 };
 
 
