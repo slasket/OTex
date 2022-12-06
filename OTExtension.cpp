@@ -35,11 +35,9 @@ vector<string> OTExtension::Receiver::computeResult(vector<tuple<string, string>
     //transpose t matrix
     vector<vector<uint64_t>> tMatrixTransposed = util::transposeMatrix(tmatrix);
     vector<string> result = vector<string>(m);
-    string choicebits;
     for (int i = 0; i < m; ++i) {//m might be wrong lol
         int choiceBit = util::findithBit(selectionBits, i);
         //int choiceBit = rcvSelectionBitsBitset[i];
-        choicebits += to_string(choiceBit);
         string x;
         if(choiceBit == 0){
             auto hfuck = util::hFunction(i, tMatrixTransposed[i]);
@@ -50,8 +48,6 @@ vector<string> OTExtension::Receiver::computeResult(vector<tuple<string, string>
         }
         result[i] = x;
     }
-
-    cout << "choicebits: " << choicebits << endl;
     return result;
 }
 
@@ -135,7 +131,7 @@ OTExtension::OTExtensionProtocol(vector<tuple<string, string>> senderStrings, ve
     // receiver "sends" umatrix to sender
     cout << "Computing q matrix" << endl;
     sender.computeQMatrix(symmetricKeySize, umatrix, kresult, m);
-    sanityCheck(sender, receiver, symmetricKeySize, m);
+    //sanityCheck(sender, receiver, symmetricKeySize, m);
     cout << "Computing y pairs" << endl;
     vector<tuple<string,string>> yPairs = sender.generateYpairs(m, symmetricKeySize);
     // sender "sends" yPairs to receiver
@@ -188,9 +184,6 @@ void OTExtension::sanityCheck(OTExtension::Sender sender, OTExtension::Receiver 
             cout << endl;
         }
     }
-    cout << "correctcounter: " << correctcounter << endl;
-    cout << "zeroes: " << zeroes << endl;
-    cout << "ones: " << ones << endl;
 }
 
 

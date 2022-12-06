@@ -174,28 +174,43 @@ string util::printBitsetofVectorofUints(vector<uint64_t> uints){
 }
 
 //AES-128 counter mode encryption
-tuple<uint64_t, uint64_t> util::AES128CounterMode(tuple<uint64_t, uint64_t> plaintext) {
+tuple<uint64_t, uint64_t> util::AES128CounterMode(tuple<uint64_t, uint64_t> key) {
     word32 seed = 0x12345678; //TODO: change to random
     LC_RNG prng = LC_RNG(seed);
+    string plaintext = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
-    CryptoPP::byte key[AES::DEFAULT_KEYLENGTH];
-    prng.GenerateBlock( key, sizeof(key) );
+    //convert key to CryptoPP::byte
+    CryptoPP::byte keyByte[AES::DEFAULT_KEYLENGTH];
+    auto key0 = get<0>(key);
+    auto key1 = get<1>(key);
+    for (int i = 0; i < 8; ++i) {
+        keyByte[i] = (key0 >> (8 * i)) & 0xFF;
+    }
+    for (int i = 8; i < 16; ++i) {
+        keyByte[i] = (key1 >> (8 * (i-8))) & 0xFF;
+    }
+    //cout << "got so far" << endl;
+
+
+
+    //CryptoPP::byte key[AES::DEFAULT_KEYLENGTH];
+    //prng.GenerateBlock( key, sizeof(key) );
 
     CryptoPP::byte ctr[ AES::BLOCKSIZE ];
     prng.GenerateBlock( ctr, sizeof(ctr) );
 
 
     //convert plaintext to bitset
-    string a0 = bitset<64>(get<0>(plaintext)).to_string();
-    string a1 = bitset<64>(get<1>(plaintext)).to_string();
+    //string a0 = bitset<64>(get<0>(plaintext)).to_string();
+    //string a1 = bitset<64>(get<1>(plaintext)).to_string();
 
-    string a0bin = bin2str(a0);
-    string a1bin = bin2str(a1);
+    //string a0bin = bin2str(a0);
+    //string a1bin = bin2str(a1);
 
-    string plain;
+    string plain = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";;
     //convert plaintext to string
-    plain += a0bin;
-    plain += a1bin;
+    //plain += a0bin;
+    //plain += a1bin;
     string cipher, encoded, recovered;
 
     /*********************************\
@@ -205,7 +220,7 @@ tuple<uint64_t, uint64_t> util::AES128CounterMode(tuple<uint64_t, uint64_t> plai
     {
 
         CTR_Mode< AES >::Encryption e;
-        e.SetKeyWithIV( key, sizeof(key), ctr );
+        e.SetKeyWithIV( keyByte, sizeof(keyByte), ctr );
 
         // The StreamTransformationFilter adds padding
         //  as required. ECB and CBC Mode must be padded
@@ -226,8 +241,8 @@ tuple<uint64_t, uint64_t> util::AES128CounterMode(tuple<uint64_t, uint64_t> plai
 
 
     //convert result to bitset
-    string result0 = bitset<64>(get<0>(result)).to_string();
-    string result1 = bitset<64>(get<1>(result)).to_string();
+    //string result0 = bitset<64>(get<0>(result)).to_string();
+    //string result1 = bitset<64>(get<1>(result)).to_string();
 
 
     return result;
@@ -255,13 +270,13 @@ vector<tuple<string, string>> util::genMPairsOfLbitStrings(int pairs, int strLen
     AutoSeededRandomPool prng;
     strLen=256;
     auto senderPairs =  vector<tuple<string, string>>(pairs);
+    bitset<256> bs0;
+    bitset<256> bs1;
+    for (int j = 0; j < 256; ++j) {
+        bs0[j] = prng.GenerateBit();
+        bs1[j] = prng.GenerateBit();
+    }
     for (int i = 0; i < pairs; ++i) {
-        bitset<256> bs0;
-        bitset<256> bs1;
-        for (int j = 0; j < 256; ++j) {
-            bs0[j] = prng.GenerateBit();
-            bs1[j] = prng.GenerateBit();
-        }
         //tooomany bitters
         senderPairs[i] = {bin2str(bs0.to_string()),bin2str(bs1.to_string())};
     }
