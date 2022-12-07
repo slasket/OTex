@@ -35,7 +35,7 @@ vector<vector<uint64_t>> OTExtension::Receiver::computeTandUMatricies(int symmet
 vector<vector<uint64_t>>
 OTExtension::Receiver::computeResult(vector<tuple<vector<uint64_t>, vector<uint64_t>>> yPairs, int m) {
     //transpose t matrix
-    vector<vector<uint64_t>> tMatrixTransposed = util::transposeMatrix(tmatrix);
+    vector<vector<uint64_t>> tMatrixTransposed = util::fastTranspose(tmatrix);//util::transposeMatrix(tmatrix);
     auto result = vector<vector<uint64_t>>(m);
     for (int i = 0; i < m; ++i) {//m might be wrong lol
         int choiceBit = util::findithBit(selectionBits, i);
@@ -93,7 +93,7 @@ vector<tuple<vector<uint64_t>, vector<uint64_t>>> OTExtension::Sender::generateY
     auto yPairs = vector<tuple<vector<uint64_t>, vector<uint64_t>>>(m);
     cout << "transposing the qmatrix" << endl;
     auto start = high_resolution_clock::now();
-    vector<vector<uint64_t>> transposedQMatrix = util::transposeMatrix(qmatrix);
+    vector<vector<uint64_t>> transposedQMatrix = util::fastTranspose(qmatrix);//util::transposeMatrix(qmatrix);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<seconds>(stop - start);
     cout <<"transposing q took "  << duration.count() << " seconds" << endl;

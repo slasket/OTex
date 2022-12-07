@@ -112,7 +112,7 @@ vector<vector<uint64_t>> util::transposeMatrix(vector<vector<uint64_t>>& matrix)
     bitset<64> lowerbits;
     int k = matrix.size();
     int m = matrix[0].size()*64;
-    vector<vector<uint64_t>> transposedMat = vector<vector<uint64_t>>(m, vector<uint64_t>(k));
+    vector<vector<uint64_t>> transposedMat = vector<vector<uint64_t>>(m, vector<uint64_t>((k/64)));
     for (int i = 0; i < m; ++i) {
         for (int j = 0; j < k; ++j) {
             if (j < 64) {
@@ -126,6 +126,101 @@ vector<vector<uint64_t>> util::transposeMatrix(vector<vector<uint64_t>>& matrix)
         transposedMat[i] = {higherbits.to_ullong(), lowerbits.to_ullong()};
     }
 
+    return transposedMat;
+}
+
+vector<vector<uint64_t>> util::fastTranspose(vector<vector<uint64_t>>& matrix) {
+    int k = matrix.size();
+    int m = matrix[0].size()*64;
+    int amountOfUints= matrix[0].size();
+        vector<vector<uint64_t>> transposedMat = vector<vector<uint64_t>>(m, vector<uint64_t>(k/64));
+    int windowSize = 2;
+    while(windowSize<=m){
+        if (windowSize<=64){
+            //generate masks
+            string andMask1;
+            string andMask2;
+            for (int l = 0; l < 64; l+=windowSize) {
+                for (int n = 0; n < windowSize/2; ++n) {
+                    andMask1+= "0";
+                    andMask2+= "1";
+                }
+                for (int n = 0; n < windowSize/2; ++n) {
+                    andMask1+= "1";
+                    andMask2+= "0";
+                }
+            }
+            //cout<< "andmasks for size " << windowSize <<endl;
+            //cout<< andMask1<<endl;
+            //cout<< andMask2<<endl;
+
+            uint64_t mask1 = stoull(andMask1, nullptr,2);
+            uint64_t mask2 = stoull(andMask2, nullptr,2);
+            for (int j = 0; j < k; j+=windowSize) {
+                for (int i = 0; i < amountOfUints; ++i) {
+                    //get the uint to be masked
+                    auto intToBeMasked = vector<uint64_t>(windowSize);
+                    auto maskingVals = vector<uint64_t>(windowSize);
+                    for (int l = 0; l < windowSize; ++l) {
+                        intToBeMasked[l]= matrix[j+l][i];
+
+                        if (l<(windowSize/2)){
+                            maskingVals[l] = (intToBeMasked[l] & mask1)<<(windowSize/2);
+                        } else{
+                            maskingVals[l] = (intToBeMasked[l] & mask2)>>(windowSize/2);
+                        }
+                    }
+                    for (int l = 0; l < windowSize; ++l) {
+                        if (l<(windowSize/2)){
+                            //pair up l and l+windowssize/
+                            intToBeMasked[l]=(intToBeMasked[l] & mask2) ^ maskingVals[(l+(windowSize/2))];
+                        }else{
+                            //pair up l and l-windowssize/2
+                            intToBeMasked[l]=(intToBeMasked[l]&mask1) ^maskingVals[(l-(windowSize/2))];
+                        }
+                    }
+
+                    for (int l = 0; l < windowSize; ++l) {
+                        matrix[j + l][i]=intToBeMasked[l];
+                    }
+                }
+            }
+        }
+        if (windowSize==128){
+            //move the block of 64x64 bits around
+            //|a|b|->|a|c|
+            //|c|d|  |b|d|
+            for (int i = 0; i < amountOfUints; i+=2) {
+                auto IntsToMove = vector<uint64_t>(windowSize);
+                for (int j = 0; j < k; ++j) {
+                    if (j<(windowSize/2)){
+                        IntsToMove[(j+64)]= matrix[j][i+1];
+                    }else{
+                        IntsToMove[(j-64)]= matrix[j][i];
+                    }
+                }
+                for (int j = 0; j < k; ++j) {
+                    if (j<(windowSize/2)){
+                        matrix[j][i+1]=IntsToMove[j];
+                    }else{
+                        matrix[j][i]=IntsToMove[j];
+                    }
+                }
+            }
+        }
+        if (windowSize>k){
+            int amountOf128keysHandled =0;
+            for (int i = 0; i < amountOfUints; i+=2) {
+                auto IntToMove = vector<uint64_t>(k/64);
+                for (int j = 0; j < k; ++j) {
+                    transposedMat[(j+amountOf128keysHandled)] = {matrix[j][i],matrix[j][i+1]};
+                }
+                amountOf128keysHandled+=128;
+            }
+            windowSize=m;
+        }
+        windowSize=windowSize*2;
+    }
     return transposedMat;
 }
 

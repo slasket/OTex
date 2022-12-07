@@ -60,6 +60,8 @@ public:
     }
 
     static vector<uint64_t> bitstringToVUnit64(const string& bitstring);
+
+    static vector<vector<uint64_t>> fastTranspose(vector<vector<uint64_t>> &matrix);
 };
 
 

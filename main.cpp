@@ -48,6 +48,8 @@ void testFindInt();
 
 void testTransposeMatrix();
 
+void testMatrixTransposistion();
+
 /*void InitialOTExample(int keysize, int choiceBit, string string0, string string1){
     InitialOT::Alice alice(choiceBit);
     InitialOT::Bob bob(string0, string1);
@@ -159,7 +161,10 @@ void fromVtoKExtendedOTs(int v , int k, int l, int symmetricKeySize, int elgamal
 
 }
 
+
 int main() {
+    //testMatrixTransposistion();
+
 
     fromVtoKExtendedOTs(512,1048576,256,128,2048);
     //int m = 1024;
@@ -170,6 +175,72 @@ int main() {
     //cout <<"###OTamount: " << m<<" in "  << duration.count() << " seconds" << endl;
     //cout << endl;
     return 0;
+}
+
+void testMatrixTransposistion() {
+    int keysize = 128;
+    int m = 256;
+    auto testmat = vector<vector<uint64_t>>(128, vector<uint64_t>(2048));
+    auto simpleTestmat = vector<vector<uint64_t>>(keysize,vector<uint64_t>(m/64));
+    for (int i = 0; i < 64; ++i) {
+        if (i %2 ==0){
+        simpleTestmat[i][0] = UINT64_MAX;
+        //simpleTestmat[i][1] = UINT64_MAX;
+        }else{
+        simpleTestmat[i][0] = 0;
+        //simpleTestmat[i][1] = 0;
+        }
+    }
+    auto sameMatButdifferent =simpleTestmat;
+
+    //util::fastTranspose(testmat);
+    //for (int i = 0; i < 64; ++i) {
+    //    bitset<64>firstval(simpleTestmat[i][0]);
+    //    cout<<firstval<<endl;}
+    //cout<<"transposed"<<endl;
+    //auto res = util::fastTranspose(simpleTestmat);
+    //for (int i = 0; i < 64; ++i) {
+    //    bitset<64>firstval(res[i][0]);
+    //    cout<<firstval<<endl;}
+    //cout<<"how it should be transposed"<<endl;
+    //auto gamerres = util::transposeMatrix(sameMatButdifferent);
+    //for (int i = 0; i < 64; ++i) {
+    //    bitset<64>firstval(gamerres[i][0]);
+    //    cout<<firstval<<endl;}
+    auto res = util::fastTranspose(simpleTestmat);
+    cout<< res[0].size()<<endl;
+    cout<<res.size()<<endl;
+    auto a = res[0];
+
+
+    assert(res[0].size()==(keysize/64));
+    assert(res.size()==(m));
+
+
+}
+
+void testTans(){
+    auto testm =vector<vector<uint64_t>>(64,vector<uint64_t>(1));
+    for (int i = 0; i < 64; ++i) {
+        if (i %2 ==0){
+            testm[i][0] = UINT64_MAX;
+            //simpleTestmat[i][1] = UINT64_MAX;
+        }else{
+            testm[i][0] = 0;
+            //simpleTestmat[i][1] = 0;
+        }
+    }
+    auto res = util::transposeMatrix(testm);
+
+    for (int i = 0; i < 64; ++i) {
+        bitset<64>firstval(testm[i][0]);
+        cout<<firstval<<endl;
+    }
+    cout<< "delim"<<endl;
+    for (int i = 0; i < 64; ++i) {
+        bitset<64>firstval(res[i][0]);
+        cout<<firstval<<endl;
+    }
 }
 
 void testTransposeMatrix() {
