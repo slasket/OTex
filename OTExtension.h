@@ -30,30 +30,31 @@ public:
         }
         vector<vector<uint64_t>> computeTandUMatricies(int symmetricKeysize, int m);
 
-        vector<string> computeResult(vector<tuple<string, string>> yPairs, int m);
+        vector<vector<uint64_t>> computeResult(vector<tuple<vector<uint64_t>, vector<uint64_t>>> yPairs, int m);
 
     };
 
     class Sender{
-        vector<tuple<string,string>> senderStrings;
+        vector<tuple<vector<uint64_t>, vector<uint64_t>>> senderStrings;
     public:
         vector<vector<uint64_t>> qmatrix;
         tuple<uint64_t, uint64_t> initialOTChoiceBits;
-        explicit Sender(vector<tuple<string,string>> ss){
-            senderStrings = ss;
+        explicit Sender(vector<tuple<vector<uint64_t>, vector<uint64_t>>> ss){
+            senderStrings = std::move(ss);
         };
         void setInitialOTChoiceBits(tuple<uint64_t, uint64_t> initialOTChoiceBits){
             Sender::initialOTChoiceBits = initialOTChoiceBits;
         }
         void computeQMatrix(int symmetricKeysize, vector<vector<uint64_t>> umatrix,
                             tuple<uint64_t, uint64_t> *kresults, int m);
-        vector<tuple<string, string>> generateYpairs(int m, int k);
+        vector<tuple<vector<uint64_t>, vector<uint64_t>>> generateYpairs(int m, int k);
 
 
     };
 public:
-    static vector<string> OTExtensionProtocol(vector<tuple<string, string>> senderStrings, vector<uint64_t> selectionBits,
-                                              int symmetricKeySize, int elgamalkeysize);
+    static vector<vector<uint64_t>>
+    OTExtensionProtocol(vector<tuple<vector<uint64_t>, vector<uint64_t>>> senderStrings, vector<uint64_t> selectionBits,
+                        int symmetricKeySize, int elgamalkeysize);
 
     static void sanityCheck(Sender sender, Receiver receiver, int size, int m);
 };

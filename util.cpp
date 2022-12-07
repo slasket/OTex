@@ -19,10 +19,12 @@ using namespace std;
 using namespace CryptoPP;
 
 
-vector<uint64_t> util::mbitXOR(vector<uint64_t> &pInt, vector<uint64_t> &pInt1, int m) {
-    auto res = vector<uint64_t>((m+64-1)/64);
-    for (int i = 0; i < (m+64-1)/64; ++i) {
+
+vector<uint64_t> util::mbitXOR(vector<uint64_t> &pInt, vector<uint64_t> &pInt1) {
+    auto res = vector<uint64_t>(pInt.size());
+    for (int i = 0; i < pInt.size(); ++i) {
         //Xor two 64 bit uint64_t integers
+        res[i] =0;
         res[i] = pInt[i] ^ pInt1[i];
     }
     return res;
@@ -266,19 +268,22 @@ vector<uint64_t> util::entryWiseAnd(int si, const vector<uint64_t>& umatrixi, in
     return res;
 }
 
-vector<tuple<string, string>> util::genMPairsOfLbitStrings(int pairs, int strLen) {
+vector<tuple<vector<uint64_t>, vector<uint64_t>>> util::genMPairsOfLbitStrings(int pairs, int strLen) {
     //since we use sha256 we should always use 256bit string length
     AutoSeededRandomPool prng;
-    auto senderPairs =  vector<tuple<string, string>>(pairs);
-    bitset<256> bs0;
-    bitset<256> bs1;
-    for (int j = 0; j < 256; ++j) {
-        bs0[j] = prng.GenerateBit();
-        bs1[j] = prng.GenerateBit();
+    auto senderPairs =  vector<tuple<vector<uint64_t>, vector<uint64_t>>>(pairs);
+    auto amountOfBitsets = strLen/64;
+
+    auto bs0vec = vector<uint64_t>(4);
+    auto bs1vec = vector<uint64_t>(4);
+    for (int j = 0; j < amountOfBitsets; ++j) {
+        auto bs0 = random_bitset<64>();
+        auto bs1 = random_bitset<64>();
+        bs0vec[j]= bs0.to_ullong();
+        bs1vec[j]=bs1.to_ullong();
     }
     for (int i = 0; i < pairs; ++i) {
-        //tooomany bitters
-        senderPairs[i] = {bin2str(bs0.to_string()),bin2str(bs1.to_string())};
+        senderPairs[i] = {bs0vec,bs1vec};
     }
 
     return senderPairs;
@@ -393,4 +398,13 @@ bitset<64> util::reverseBitset(bitset<64> bitset1) {
         bitset2[i] = bitset1[63 - i];
     }
     return bitset2;
+}
+
+vector<uint64_t> util::bitstringToVUnit64(const string& bitstring){
+    int amoutOfChars = bitstring.size();
+    vector<uint64_t> res;//= vector<uint64_t>(0)
+    for (int i = 0; i < amoutOfChars; i+=64) {
+        res.emplace_back(stoull(bitstring.substr(i,64), nullptr,2));
+    }
+    return res;
 }

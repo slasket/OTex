@@ -79,7 +79,7 @@ void timing1Of2OT() {
 void doMExtendedOTs(int m, int l, int symmetricKeySize, int elgamalKeysize){
 
     //M is ALWAYS a multiple of 64!!!!
-    vector<tuple<string,string>> senderPairs(m);
+    vector<tuple<vector<uint64_t>, vector<uint64_t>>> senderPairs(m);
     vector<uint64_t> rcvSelectionBits(m);
     senderPairs = util::genMPairsOfLbitStrings(m, l);
     rcvSelectionBits = util::genRcvSelectionBits(m);
@@ -88,38 +88,38 @@ void doMExtendedOTs(int m, int l, int symmetricKeySize, int elgamalKeysize){
     //reverse result vector
     //reverse(result.begin(),result.end());
     //convert rcvSelectionBits to bitset
-    //string choicebits;
-    //int correctcounter = 0;
-    //int incorrectcounter = 0;
-    //int zeroes = 0;
-    //int ones = 0;
-    //for (int i = 0; i < m; ++i) {
-    //    int choicebit = util::findithBit(rcvSelectionBits,i);
-    //    choicebits += to_string(choicebit);
-    //    if(choicebit == 0){
-    //        if(result[i] == util::str2bitstr(get<0>(senderPairs[i])) ){
-    //            //cout<<"res: "<<result[i]<<endl;
-    //            //cout<<"par: "<<util::str2bitstr(get<0>(senderPairs[i]))<<endl;
-    //            correctcounter++;
-    //            zeroes++;
-    //        } else {
-    //            //cout<<"res: "<<result[i]<<endl;
-    //            //cout<<"par: "<<util::str2bitstr(get<0>(senderPairs[i]))<<endl;
-    //            incorrectcounter++;
-    //        }
-    //    }else{
-    //        if(result[i] == util::str2bitstr(get<1>(senderPairs[i])) ){
-    //            //cout<<"res: "<<result[i]<<endl;
-    //            //cout<<"par: "<<util::str2bitstr(get<1>(senderPairs[i]))<<endl;
-    //            correctcounter++;
-    //            ones++;
-    //        } else {
-    //            //cout<<"res: "<<result[i]<<endl;
-    //            //cout<<"par: "<<util::str2bitstr(get<1>(senderPairs[i]))<<endl;
-    //            incorrectcounter++;
-    //        }
-    //    }
-    //}
+    string choicebits;
+    int correctcounter = 0;
+    int incorrectcounter = 0;
+    int zeroes = 0;
+    int ones = 0;
+    for (int i = 0; i < m; ++i) {
+        int choicebit = util::findithBit(rcvSelectionBits,i);
+        choicebits += to_string(choicebit);
+        if(choicebit == 0){
+            if(util::printBitsetofVectorofUints(result[i]) == util::printBitsetofVectorofUints(get<0>(senderPairs[i])) ){
+                //cout<<"res: "<<result[i]<<endl;
+                //cout<<"par: "<<util::str2bitstr(get<0>(senderPairs[i]))<<endl;
+                correctcounter++;
+                zeroes++;
+            } else {
+                //cout<<"res: "<<result[i]<<endl;
+                //cout<<"par: "<<util::str2bitstr(get<0>(senderPairs[i]))<<endl;
+                incorrectcounter++;
+            }
+        }else{
+            if(util::printBitsetofVectorofUints(result[i]) == util::printBitsetofVectorofUints(get<1>(senderPairs[i])) ){
+                //cout<<"res: "<<result[i]<<endl;
+                //cout<<"par: "<<util::str2bitstr(get<1>(senderPairs[i]))<<endl;
+                correctcounter++;
+                ones++;
+            } else {
+                //cout<<"res: "<<result[i]<<endl;
+                //cout<<"par: "<<util::str2bitstr(get<1>(senderPairs[i]))<<endl;
+                incorrectcounter++;
+            }
+        }
+    }
     //reverse findIntchoicebits
     //string findIntchoicebitsReversed;
     //for (int i = 0; i < findIntchoicebits.length(); ++i) {
@@ -127,14 +127,15 @@ void doMExtendedOTs(int m, int l, int symmetricKeySize, int elgamalKeysize){
     //}
     //cout << "findIn Rev: " << findIntchoicebitsReversed << endl;
     //count where choicebits and findIntchoicebits differ
-    //cout << "correct: " << correctcounter << endl;
-    //cout << "incorrect: " << incorrectcounter << endl;
-    //cout<<"zeroes: "<<zeroes<<endl;
-    //cout<<"ones: "<<ones<<endl;
+    cout << "correct: " << correctcounter << endl;
+    cout << "incorrect: " << incorrectcounter << endl;
+    cout<<"zeroes: "<<zeroes<<endl;
+    cout<<"ones: "<<ones<<endl;
 }
 void fromVtoKExtendedOTs(int v , int k, int l, int symmetricKeySize, int elgamalKeysize){
     for (int j = v; j <= k; j=j*2) {
-        vector<tuple<string,string>> senderPairs(j);
+        //vector<tuple<vector<uint64_t>, vector<uint64_t>>>
+        vector<tuple<vector<uint64_t>, vector<uint64_t>>> senderPairs(j);
         vector<uint64_t> rcvSelectionBits(j);
         senderPairs = util::genMPairsOfLbitStrings(j, l);
         rcvSelectionBits = util::genRcvSelectionBits(j);
@@ -160,24 +161,14 @@ void fromVtoKExtendedOTs(int v , int k, int l, int symmetricKeySize, int elgamal
 
 int main() {
 
-    //Integer str2bitstr;
-    //auto startstr2bit = high_resolution_clock::now();
-    //int a = 0;
-    //for (int i = 0; i < 500000000000; ++i) {
-    //    a++;
-    //}
-    //cout << "str2bitstr time " << str2bitstr << "seconds" <<endl;
-
-
-
-    //fromVtoKExtendedOTs(512,1048576,80,128,2048);
-    int m = 65536/8;
-    auto start = high_resolution_clock::now();
-    doMExtendedOTs(m,80,128,2048);
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<seconds>(stop - start);
-    cout <<"###OTamount: " << m<<" in "  << duration.count() << " seconds" << endl;
-    cout << endl;
+    fromVtoKExtendedOTs(512,1048576,256,128,2048);
+    //int m = 1024;
+    //auto start = high_resolution_clock::now();
+    //doMExtendedOTs(m,256,128,2048);
+    //auto stop = high_resolution_clock::now();
+    //auto duration = duration_cast<seconds>(stop - start);
+    //cout <<"###OTamount: " << m<<" in "  << duration.count() << " seconds" << endl;
+    //cout << endl;
     return 0;
 }
 
