@@ -14,6 +14,7 @@
 #include <cryptopp/modes.h>
 #include <sstream>
 #include "util.h"
+#include <random>
 using namespace std;
 using namespace CryptoPP;
 
@@ -268,7 +269,6 @@ vector<uint64_t> util::entryWiseAnd(int si, const vector<uint64_t>& umatrixi, in
 vector<tuple<string, string>> util::genMPairsOfLbitStrings(int pairs, int strLen) {
     //since we use sha256 we should always use 256bit string length
     AutoSeededRandomPool prng;
-    strLen=256;
     auto senderPairs =  vector<tuple<string, string>>(pairs);
     bitset<256> bs0;
     bitset<256> bs1;
@@ -287,13 +287,10 @@ vector<tuple<string, string>> util::genMPairsOfLbitStrings(int pairs, int strLen
 vector<uint64_t> util::genRcvSelectionBits(int bits) {
    AutoSeededRandomPool prng;
    auto res = vector<uint64_t>((bits+64-1)/64);
-   bitset<64> bitset;
-
     for (int blockNum = 0; blockNum <(bits+64-1)/64; ++blockNum) {
-        for (int i = 0; i < 64; ++i) {
-            bitset[i]=(prng.GenerateBit());
-        }
-        res[blockNum]=bitset.to_ullong();
+        res[blockNum] = random_bitset<64>().to_ullong();
+        //for (int i = 0; i < 64; ++i) {bitset[i]=(prng.GenerateBit());}
+        //res[blockNum]=bitset.to_ullong();
     }
    return res;
 }

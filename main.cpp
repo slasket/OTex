@@ -13,7 +13,9 @@
 #include "cryptopp/files.h"
 #include "cryptopp/modes.h"
 #include "util.h"
+#include <chrono>
 
+using namespace std::chrono;
 
 void sampleEncryption();
 
@@ -88,40 +90,38 @@ void doMExtendedOTs(int m, int l, int symmetricKeySize, int elgamalKeysize){
     //reverse result vector
     //reverse(result.begin(),result.end());
     //convert rcvSelectionBits to bitset
-
-    string choicebits;
-    int correctcounter = 0;
-    int incorrectcounter = 0;
-    int zeroes = 0;
-    int ones = 0;
-    for (int i = 0; i < m; ++i) {
-        int choicebit = util::findithBit(rcvSelectionBits,i);
-
-        choicebits += to_string(choicebit);
-        if(choicebit == 0){
-            if(result[i] == util::str2bitstr(get<0>(senderPairs[i])) ){
-                //cout<<"res: "<<result[i]<<endl;
-                //cout<<"par: "<<util::str2bitstr(get<0>(senderPairs[i]))<<endl;
-                correctcounter++;
-                zeroes++;
-            } else {
-                //cout<<"res: "<<result[i]<<endl;
-                //cout<<"par: "<<util::str2bitstr(get<0>(senderPairs[i]))<<endl;
-                incorrectcounter++;
-            }
-        }else{
-            if(result[i] == util::str2bitstr(get<1>(senderPairs[i])) ){
-                //cout<<"res: "<<result[i]<<endl;
-                //cout<<"par: "<<util::str2bitstr(get<1>(senderPairs[i]))<<endl;
-                correctcounter++;
-                ones++;
-            } else {
-                //cout<<"res: "<<result[i]<<endl;
-                //cout<<"par: "<<util::str2bitstr(get<1>(senderPairs[i]))<<endl;
-                incorrectcounter++;
-            }
-        }
-    }
+    //string choicebits;
+    //int correctcounter = 0;
+    //int incorrectcounter = 0;
+    //int zeroes = 0;
+    //int ones = 0;
+    //for (int i = 0; i < m; ++i) {
+    //    int choicebit = util::findithBit(rcvSelectionBits,i);
+    //    choicebits += to_string(choicebit);
+    //    if(choicebit == 0){
+    //        if(result[i] == util::str2bitstr(get<0>(senderPairs[i])) ){
+    //            //cout<<"res: "<<result[i]<<endl;
+    //            //cout<<"par: "<<util::str2bitstr(get<0>(senderPairs[i]))<<endl;
+    //            correctcounter++;
+    //            zeroes++;
+    //        } else {
+    //            //cout<<"res: "<<result[i]<<endl;
+    //            //cout<<"par: "<<util::str2bitstr(get<0>(senderPairs[i]))<<endl;
+    //            incorrectcounter++;
+    //        }
+    //    }else{
+    //        if(result[i] == util::str2bitstr(get<1>(senderPairs[i])) ){
+    //            //cout<<"res: "<<result[i]<<endl;
+    //            //cout<<"par: "<<util::str2bitstr(get<1>(senderPairs[i]))<<endl;
+    //            correctcounter++;
+    //            ones++;
+    //        } else {
+    //            //cout<<"res: "<<result[i]<<endl;
+    //            //cout<<"par: "<<util::str2bitstr(get<1>(senderPairs[i]))<<endl;
+    //            incorrectcounter++;
+    //        }
+    //    }
+    //}
     //reverse findIntchoicebits
     //string findIntchoicebitsReversed;
     //for (int i = 0; i < findIntchoicebits.length(); ++i) {
@@ -129,57 +129,40 @@ void doMExtendedOTs(int m, int l, int symmetricKeySize, int elgamalKeysize){
     //}
     //cout << "findIn Rev: " << findIntchoicebitsReversed << endl;
     //count where choicebits and findIntchoicebits differ
+    //cout << "correct: " << correctcounter << endl;
+    //cout << "incorrect: " << incorrectcounter << endl;
+    //cout<<"zeroes: "<<zeroes<<endl;
+    //cout<<"ones: "<<ones<<endl;
+}
+void fromVtoKExtendedOTs(int v , int k, int l, int symmetricKeySize, int elgamalKeysize){
+    for (int j = v; j <= k; j=j*2) {
+        vector<tuple<string,string>> senderPairs(j);
+        vector<uint64_t> rcvSelectionBits(j);
+        senderPairs = util::genMPairsOfLbitStrings(j, l);
+        rcvSelectionBits = util::genRcvSelectionBits(j);
 
-    cout << "correct: " << correctcounter << endl;
-    cout << "incorrect: " << incorrectcounter << endl;
-    cout<<"zeroes: "<<zeroes<<endl;
-    cout<<"ones: "<<ones<<endl;
+        auto start = high_resolution_clock::now();
+
+        auto result = OTExtension::OTExtensionProtocol(senderPairs,rcvSelectionBits,symmetricKeySize,elgamalKeysize);
+
+        // Get ending timepoint
+        auto stop = high_resolution_clock::now();
+
+        // Get duration. Substart timepoints to
+        // get duration. To cast it to proper unit
+        // use duration cast method
+        auto duration = duration_cast<seconds>(stop - start);
+        cout << endl;
+        cout <<"###OTamount: " << j<<" in "  << duration.count() << " seconds" << endl;
+        cout << endl;
+
+    }
+
 }
 
 int main() {
-    //const char *string1 = "1111000101111010011111000101111010011111110001011110100111110001011110100111";
-    //Integer a = Integer(string1);
-    //cout << a << endl;
-    //AESCBC();
-    //YtextExtendKey();
 
-    //vector<uint64_t> rcvString = {0,0};
-    //OTExtension::OTExtensionProtocol(nullptr, rcvString, 128, 2048);
-
-    //cout << util::reversestr2binVector("FF") << endl;
-    //auto xd = util::stringXor(util::reversestr2binVector("FF"), util::reversestr2binVector("AB"));
-    //cout << xd << endl;
-    //xd = util::stringXor(xd, util::reversestr2binVector("AB"));
-    //cout << xd << endl;
-
-    //testFindInt();
-    //tuple<uint64_t, uint64_t> test = InitialOT::GenerateKbitString(128);
-    //auto output = util::AES128CounterMode(test);
-
-
-    doMExtendedOTs(256,256,128,2048);
-
-    //testTransposeMatrix();
-
-    //string string0 = util::reversestr2binVector(util::SHA256HashString("test"));
-    //cout << string0 << endl;
-    //string string1 = util::reversestr2binVector(util::SHA256HashString("test"));
-    //cout << string1 << endl;
-    //string string2 = util::stringXor(string0, string1);
-    //cout << string2 << endl;
-    //string string3 = util::stringXor(string2, string1);
-    //cout << string3 << endl;
-
-
-    //cout << OTExtension::SHA256HashString("test") << endl;
-    //OTExtension::Sender sender(nullptr);
-    //OTExtension::Receiver receiver({0,0});
-    //InitialOT::BaseOT(2048,128, sender, receiver);
-    //timing1Of2OT();
-
-    //sampleEncryption();
-
-    //testGroupParaInit();
+    fromVtoKExtendedOTs(512,1048576,80,128,2048);
 
     return 0;
 }

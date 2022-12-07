@@ -7,6 +7,7 @@
 
 #include <string>
 #include <bitset>
+#include <random>
 
 using namespace std;
 
@@ -41,6 +42,22 @@ public:
     static string reversestr2binVector(const string &t_);
 
     //static int findithBitinvectorofuint64_t(vector<uint64_t> ui, int i);
+
+    //taken from https://www.appsloveworld.com/cplus/100/112/c-efficient-way-to-generate-random-bitset-with-configurable-mean-1s-to-0s-r
+    template< size_t size>
+    static typename std::bitset<size> random_bitset( double p = 0.5) {
+
+        typename std::bitset<size> bits;
+        std::random_device rd;
+        std::mt19937 gen( rd());
+        std::bernoulli_distribution d( p);
+
+        for( int n = 0; n < size; ++n) {
+            bits[ n] = d( gen);
+        }
+
+        return bits;
+    }
 
 };
 

@@ -85,9 +85,13 @@ void OTExtension::Sender::computeQMatrix(int symmetricKeysize, vector<vector<uin
 
 vector<tuple<string, string>> OTExtension::Sender::generateYpairs(int m, int k) {
     vector<tuple<string,string>> yPairs = vector<tuple<string,string>>(m);
+    cout << "transposing the qmatrix" << endl;
     vector<vector<uint64_t>> transposedQMatrix = util::transposeMatrix(qmatrix);
     int counter = 0;
     for (int i = 0; i < m; ++i) {
+        if (i %10000==0){
+            cout << "ith iteration of loop: "<< i << endl;
+        }
         string y0 = util::stringXor(util::str2bitstr(get<0>(senderStrings[i])), util::reversestr2binVector(util::hFunction(i, transposedQMatrix[i])));
         bitset<64> iniOTbits0(get<0>(initialOTChoiceBits));
         bitset<64> iniOTbits1(get<1>(initialOTChoiceBits));
@@ -120,7 +124,7 @@ OTExtension::OTExtensionProtocol(vector<tuple<string, string>> senderStrings, ve
     OTExtension::Receiver receiver(selectionBits);
 
     //initial OT phase
-    cout<< "Starting initial OT phase" << endl;
+    //cout<< "Starting initial OT phase" << endl;
     auto kresult = InitialOT::BaseOT(elgamalkeysize, symmetricKeySize, sender, receiver);
     cout<< "Initial OT phase finished" << endl;
 
