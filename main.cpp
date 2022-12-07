@@ -23,8 +23,6 @@ void timing1Of2OT();
 
 void testGroupParaInit();
 
-
-
 /*void sampleEncryption() {
     ElGamal::PrivateKey privateKey = elgamal::KeyGen(128);
     ElGamal::PublicKey publicKey;
@@ -162,8 +160,26 @@ void fromVtoKExtendedOTs(int v , int k, int l, int symmetricKeySize, int elgamal
 
 int main() {
 
-    fromVtoKExtendedOTs(512,1048576,80,128,2048);
+    Integer str2bitstr;
+    auto startstr2bit = high_resolution_clock::now();
+    int a = 0;
+    for (int i = 0; i < 500000000000; ++i) {
+        a++;
+    }
+    auto stopstr2bit = high_resolution_clock::now();
+    str2bitstr = str2bitstr +  duration_cast<seconds>(stopstr2bit - startstr2bit).count();
+    cout << "str2bitstr time " << str2bitstr << "seconds" <<endl;
 
+
+
+    //fromVtoKExtendedOTs(512,1048576,80,128,2048);
+    int m = 65536;
+    auto start = high_resolution_clock::now();
+    doMExtendedOTs(m,80,128,2048);
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<seconds>(stop - start);
+    cout <<"###OTamount: " << m<<" in "  << duration.count() << " seconds" << endl;
+    cout << endl;
     return 0;
 }
 

@@ -11,6 +11,7 @@
 
 using namespace std;
 using namespace CryptoPP;
+using namespace std::chrono;
 
 vector<vector<uint64_t>> OTExtension::Receiver::computeTandUMatricies(int symmetricKeysize, int m) {
     vector<tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>>> receiverPairs = kpairs;
@@ -86,29 +87,94 @@ void OTExtension::Sender::computeQMatrix(int symmetricKeysize, vector<vector<uin
 vector<tuple<string, string>> OTExtension::Sender::generateYpairs(int m, int k) {
     vector<tuple<string,string>> yPairs = vector<tuple<string,string>>(m);
     cout << "transposing the qmatrix" << endl;
+    auto start = high_resolution_clock::now();
     vector<vector<uint64_t>> transposedQMatrix = util::transposeMatrix(qmatrix);
-    int counter = 0;
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<seconds>(stop - start);
+    cout <<"transposing q took "  << duration.count() << " seconds" << endl;
+    start = high_resolution_clock::now();
+
+    int stringXor = 0;
+    int str2bitstr =0;
+    int reversestr2binVector=0;
+    int reverseBitset =0;
+    int printBitsetofVectorofUints =0;
     for (int i = 0; i < m; ++i) {
-        if (i %10000==0){
-            cout << "ith iteration of loop: "<< i << endl;
-        }
-        string y0 = util::stringXor(util::str2bitstr(get<0>(senderStrings[i])), util::reversestr2binVector(util::hFunction(i, transposedQMatrix[i])));
+        //if (i %10000==0){cout << "ith iteration of loop: "<< i << endl;}
+
+        auto hfuncOut1 = util::hFunction(i, transposedQMatrix[i]);
+
+
+        auto startstr2bit = high_resolution_clock::now();
+        auto str2bitof0senderstring =util::str2bitstr(get<0>(senderStrings[i]));
+        auto stopstr2bit = high_resolution_clock::now();
+        str2bitstr = str2bitstr +  duration_cast<seconds>(stopstr2bit - startstr2bit).count();
+
+        auto starreversestr2bin = high_resolution_clock::now();
+        auto reversestr2bin= util::reversestr2binVector(hfuncOut1);
+        auto stopreversestr2bin = high_resolution_clock::now();
+        reversestr2binVector = reversestr2binVector +  duration_cast<seconds>(stopreversestr2bin - starreversestr2bin).count();
+
+
+        //hfunctime = hfunctime +  duration_cast<seconds>(stop - start).count();
+        auto startstringxor = high_resolution_clock::now();
+        string y0 = util::stringXor(str2bitof0senderstring, reversestr2bin);
+        auto stopstringxor = high_resolution_clock::now();
+        stringXor = stringXor + duration_cast<seconds>(stopstringxor - startstringxor).count();
+
         bitset<64> iniOTbits0(get<0>(initialOTChoiceBits));
         bitset<64> iniOTbits1(get<1>(initialOTChoiceBits));
+
         //reverse iniOTbits0 and iniOTbits1
+        auto startrevbitset = high_resolution_clock::now();
         iniOTbits0 = util::reverseBitset(iniOTbits0);
         iniOTbits1 = util::reverseBitset(iniOTbits1);
+        auto stoprevbitset = high_resolution_clock::now();
+        reverseBitset = reverseBitset + duration_cast<seconds>(stoprevbitset - startrevbitset).count();
+
         vector<uint64_t> initialOTkbits = vector<uint64_t>({iniOTbits1.to_ullong(), iniOTbits0.to_ullong()});
-        auto qiXORsStringXOR = util::stringXor(util::printBitsetofVectorofUints(transposedQMatrix[i]), util::printBitsetofVectorofUints(initialOTkbits));
+        auto startstrinUint = high_resolution_clock::now();
+        auto stringUint1 = util::printBitsetofVectorofUints(transposedQMatrix[i]);
+        auto stringUint2 = util::printBitsetofVectorofUints(initialOTkbits);
+        auto stopstringUint = high_resolution_clock::now();
+        printBitsetofVectorofUints = printBitsetofVectorofUints + duration_cast<seconds>(stopstringUint - startstrinUint).count();
+
+        startstringxor = high_resolution_clock::now();
+        auto qiXORsStringXOR = util::stringXor(stringUint1, stringUint2);
+        stopstringxor = high_resolution_clock::now();
+        stringXor = stringXor + duration_cast<seconds>(stopstringxor - startstringxor).count();
+
         //convert first 64 chars of qiXORsStringXOR to bitset
         bitset<64> qiXORsStringXORBitset0(qiXORsStringXOR.substr( 0, 64));
         bitset<64> qiXORsStringXORBitset1(qiXORsStringXOR.substr(64, 64));
         vector<uint64_t> qiXORsStringXORBitset = vector<uint64_t>({qiXORsStringXORBitset0.to_ullong(), qiXORsStringXORBitset1.to_ullong()});
+        startstr2bit = high_resolution_clock::now();
         string x1 = util::str2bitstr(get<1>(senderStrings[i]));
-        string hqXors = util::reversestr2binVector(util::hFunction(i, qiXORsStringXORBitset));
+        stopstr2bit = high_resolution_clock::now();
+        str2bitstr = str2bitstr +  duration_cast<seconds>(stopstr2bit - startstr2bit).count();
+
+        auto hfuncOut2 = util::hFunction(i, qiXORsStringXORBitset);
+
+        starreversestr2bin = high_resolution_clock::now();
+        string hqXors = util::reversestr2binVector(hfuncOut2);
+        stopreversestr2bin = high_resolution_clock::now();
+        reversestr2binVector = reversestr2binVector +  duration_cast<seconds>(stopreversestr2bin - starreversestr2bin).count();
+
+        startstringxor = high_resolution_clock::now();
         string y1 = util::stringXor(x1, hqXors);
+        stopstringxor = high_resolution_clock::now();
+        stringXor = stringXor + duration_cast<seconds>(stopstringxor - startstringxor).count();
         yPairs[i] = make_tuple(y0, y1);
     }
+    stop = high_resolution_clock::now();
+    duration = duration_cast<seconds>(stop - start);
+    cout << "stringXor time " << stringXor << "seconds" <<endl;
+    cout << "str2bitstr time " << str2bitstr << "seconds" <<endl;
+    cout << "reversestr2binVector time " << reversestr2binVector << "seconds" <<endl;
+    cout << "reverseBitset time " << reverseBitset << "seconds" <<endl;
+    cout << "printBitsetofVectorofUints time " << printBitsetofVectorofUints << "seconds" <<endl;
+
+    cout <<"looping over y pairs "  << duration.count() << " seconds" << endl;
     return yPairs;
 }
 
@@ -119,6 +185,7 @@ vector<string>
 OTExtension::OTExtensionProtocol(vector<tuple<string, string>> senderStrings, vector<uint64_t> selectionBits,
                                  int symmetricKeySize, int elgamalkeysize) {
     //Inputs
+    auto start = high_resolution_clock::now();
     cout<< "Starting OT Extension Protocol" << endl;
     OTExtension::Sender sender(senderStrings);
     OTExtension::Receiver receiver(selectionBits);
@@ -135,12 +202,25 @@ OTExtension::OTExtensionProtocol(vector<tuple<string, string>> senderStrings, ve
     // receiver "sends" umatrix to sender
     cout << "Computing q matrix" << endl;
     sender.computeQMatrix(symmetricKeySize, umatrix, kresult, m);
+
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<seconds>(stop - start);
+    cout <<"Initial OT and u and q matrix" << duration.count() << " seconds" << endl;
     //sanityCheck(sender, receiver, symmetricKeySize, m);
     cout << "Computing y pairs" << endl;
+    start = high_resolution_clock::now();
     vector<tuple<string,string>> yPairs = sender.generateYpairs(m, symmetricKeySize);
+    stop = high_resolution_clock::now();
+
+    duration = duration_cast<seconds>(stop - start);
+    cout <<"generate Y pairs took "  << duration.count() << " seconds" << endl;
     // sender "sends" yPairs to receiver
     cout << "Computing result" << endl;
+    start = high_resolution_clock::now();
     auto result = receiver.computeResult(yPairs, m);
+    stop = high_resolution_clock::now();
+    duration = duration_cast<seconds>(stop - start);
+    cout <<"compute result took"  << duration.count() << " seconds" << endl;
     return result;
 }
 
