@@ -53,6 +53,12 @@ public:
     static tuple<uint64_t, uint64_t> OT1out2(int keySize, const Integer& mod, const Integer& g, int choicebit, const tuple<uint64_t, uint64_t>& string0, const tuple<uint64_t, uint64_t>& string1);
 
     static int findUIntBit(int idx, const tuple<uint64_t, uint64_t>& uint);
+
+    static tuple<uint64_t, uint64_t> *BaseOTTest(const int elgamalkeysize, int amountOfOTs, vector<tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>>> recPairs,
+                                                 vector<uint64_t> choiceBits);
+
+    static vector<tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>>>
+    genKAmountOfSelectionStrings(int keysize, int bitAmount);
 };
 
 

@@ -5,6 +5,7 @@
 #include "InitialOT.h"
 #include "elgamal.h"
 #include "cryptopp/osrng.h"
+#include "util.h"
 #include <bitset>
 #include <utility>
 #include "OTExtension.h"
@@ -49,6 +50,15 @@ tuple<uint64_t, uint64_t> InitialOT::Alice::receiveCipherArr(std::string *cpArr)
     tuple<uint64_t, uint64_t> res = {highBits, lowBits};
     return res;
 
+}
+vector<tuple<tuple<uint64_t, uint64_t>,tuple<uint64_t, uint64_t>>> InitialOT::genKAmountOfSelectionStrings(int k,int bitAmount){
+    auto receiverPairs = vector<tuple<tuple<uint64_t, uint64_t>,tuple<uint64_t, uint64_t>>>(k);
+    for (int i = 0; i < k; ++i) {
+        auto leftVal = GenerateKbitString(bitAmount);
+        auto rightVal = GenerateKbitString(bitAmount);
+        receiverPairs[i] = {leftVal,rightVal};
+    }
+    return receiverPairs;
 }
 
 string* InitialOT::Bob::receivePKArray(tuple<Integer, Integer,Integer> *pkArray) {
@@ -105,8 +115,6 @@ tuple<uint64_t, uint64_t> InitialOT::GenerateKbitString(int const k) {
 
 
 tuple<uint64_t, uint64_t>* InitialOT::BaseOT(int const elgamalkeysize, int symmetricKeysize, OTExtension::Sender& sender, OTExtension::Receiver& receiver) {
-
-
     //S choose a random string s
     tuple<uint64_t, uint64_t> initialOTChoiceBits = GenerateKbitString(symmetricKeysize);
 
@@ -117,38 +125,37 @@ tuple<uint64_t, uint64_t>* InitialOT::BaseOT(int const elgamalkeysize, int symme
     Integer mod("27116049191505256263784855523797723975553564921607276577493997526291631279569122369847027536544391667432461448615575698337249152963126647280933395355596621192802732199252815662005480533690702737050115137493783942222614822345494204540888976090325814282122923034331559601288394898636347801746441337326774229495633839205081506187176586728440053775397129715038076224311504937586111691274934414582880412809681674266766531332848541880387464807922606949659251991951744452694321879285702283721136336698590539390027917128792587102374187765081984383149973451168741005071390186909346140945857286033586249386098657878796426911023");
     Integer g = 2;
     //R chooses k pairs of k-bit seeds
-    auto receiverPairs = vector<tuple<tuple<uint64_t, uint64_t>,tuple<uint64_t, uint64_t>>>(symmetricKeysize);
-    for (int i = 0; i < symmetricKeysize; ++i) {
-        auto leftVal = GenerateKbitString(symmetricKeysize);
-        auto rightVal = GenerateKbitString(symmetricKeysize);
-        receiverPairs[i] = {leftVal,rightVal};
-    }
-
-    //Receiver saves kbitseeds
-    //InitialOT::Receiver receiver{};
-    //receiver.setKbitSeeds(receiverPairs);
-
+    auto receiverPairs = genKAmountOfSelectionStrings(symmetricKeysize,symmetricKeysize);
     //kXOTk functionality
     auto* kresults = new tuple<uint64_t, uint64_t> [symmetricKeysize];
     for (int i = 0; i < symmetricKeysize; ++i) {
         int senderChoiceBit = findUIntBit(i, initialOTChoiceBits);
-
         tuple<uint64_t, uint64_t> receivedKey = OT1out2(elgamalkeysize, mod, g, senderChoiceBit, get<0>(receiverPairs[i]), get<1>(receiverPairs[i]));
         kresults[i] = receivedKey;
-
-        //cout<< receivedString<<endl;
     }
     receiver.setKpairs(receiverPairs);
     sender.setInitialOTChoiceBits(initialOTChoiceBits);
     return kresults;
+}
+tuple<uint64_t,uint64_t>* InitialOT::BaseOTTest(int const elgamalkeysize, int amountOfOTs, vector<tuple<tuple<uint64_t, uint64_t>, tuple<uint64_t, uint64_t>>> recPairs, vector<uint64_t> choiceBits){
+    vector<uint64_t> initialOTChoiceBits = std::move(choiceBits);
+    //R chooses k pairs of k-bit seeds
+    auto receiverPairs = std::move(recPairs);
+    //Init group parameters
+    //auto groupParaKey = elgamal::InitializeGroupParameters(elgamalkeysize);
+    //Integer mod = groupParaKey.GetGroupParameters().GetModulus();
+    //Integer g = groupParaKey.GetGroupParameters().GetGenerator();
+    Integer mod("27116049191505256263784855523797723975553564921607276577493997526291631279569122369847027536544391667432461448615575698337249152963126647280933395355596621192802732199252815662005480533690702737050115137493783942222614822345494204540888976090325814282122923034331559601288394898636347801746441337326774229495633839205081506187176586728440053775397129715038076224311504937586111691274934414582880412809681674266766531332848541880387464807922606949659251991951744452694321879285702283721136336698590539390027917128792587102374187765081984383149973451168741005071390186909346140945857286033586249386098657878796426911023");
+    Integer g = 2;
 
-    //Receiver generates m selection bits called r
-    //int r = std::stoi(GenerateKbitString(symmetricKeysize));    //MOVE TO SOMEWHERE ELSE. THIS IS ONLY FOR TESTING
-    //int *umatrix = receiver.computeTandUMatricies(symmetricKeysize, receiverPairs, r);
-
-    //Sender computes q matrix
-    //InitialOT::Sender sender{};
-    //sender.computeQMatrix(umatrix, kresults);
+    //kXOTk functionality
+    auto* kresults = new tuple<uint64_t, uint64_t> [amountOfOTs];
+    for (int i = 0; i < amountOfOTs; ++i) {
+        int senderChoiceBit = util::findithBit(initialOTChoiceBits,i);
+        tuple<uint64_t, uint64_t> receivedKey = OT1out2(elgamalkeysize, mod, g, senderChoiceBit, get<0>(receiverPairs[i]), get<1>(receiverPairs[i]));
+        kresults[i] = receivedKey;
+    }
+    return kresults;
 
 }
 

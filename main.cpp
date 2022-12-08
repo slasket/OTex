@@ -161,19 +161,78 @@ void fromVtoKExtendedOTs(int v , int k, int l, int symmetricKeySize, int elgamal
 
 }
 
+void testExtendedOTSvsOriginalOTs(int v, int k ,int l, int symmetricKeySize, int elgamalKeySize){
+    cout<< "#Testing extended OTs from "<< v << " to " << k<< " Amount of OTs"<<endl;
+    for (int j = v; j <= k; j=j*2) {
+        vector<tuple<vector<uint64_t>, vector<uint64_t>>> senderPairs(j);
+        vector<uint64_t> rcvSelectionBits(j);
+        senderPairs = util::genMPairsOfLbitStrings(j, l);
+        rcvSelectionBits = util::genRcvSelectionBits(j);
+
+        auto start = high_resolution_clock::now();
+
+        auto result = OTExtension::OTExtensionProtocol(senderPairs,rcvSelectionBits,symmetricKeySize,elgamalKeySize);
+
+        // Get ending timepoint
+        auto stop = high_resolution_clock::now();
+
+        // Get duration. Substart timepoints to
+        // get duration. To cast it to proper unit
+        // use duration cast method
+        auto duration = duration_cast<seconds>(stop - start);
+        cout << endl;
+        cout <<"#OTamount: " << j<<" in "  << duration.count() << " seconds" << endl;
+        cout << endl;
+
+    }
+    cout<< "#Testing baseOTs from "<< v << " to " << k<< " Amount of OTs"<<endl;
+    for (int j = v; j <= k; j=j*2) {
+        vector<tuple<tuple<uint64_t, uint64_t>,tuple<uint64_t, uint64_t>>> senderPairs(j);
+        vector<uint64_t> rcvSelectionBits(j);
+        senderPairs = InitialOT::genKAmountOfSelectionStrings(j, 128);
+        rcvSelectionBits = util::genRcvSelectionBits(j);
+
+        cout<< "Initial OT with "<< j<< " OTs " << endl;
+        auto start = high_resolution_clock::now();
+
+
+        //initial OT phase
+        //cout<< "Starting initial OT phase" << endl;
+        auto kresult = InitialOT::BaseOTTest(elgamalKeySize, j, senderPairs, rcvSelectionBits);
+
+
+        // Get ending timepoint
+        auto stop = high_resolution_clock::now();
+
+        // Get duration. Substart timepoints to
+        // get duration. To cast it to proper unit
+        // use duration cast method
+        auto duration = duration_cast<seconds>(stop - start);
+        cout << endl;
+        cout <<"#OTamount: " << j<<" in "  << duration.count() << " seconds" << endl;
+        cout << endl;
+
+    }
+
+
+
+}
+
 
 int main() {
     //testMatrixTransposistion();
 
 
-    fromVtoKExtendedOTs(512,1048576,256,128,2048);
-    int m = 1024;
+    //fromVtoKExtendedOTs(512,1048576,256,128,2048);
+    testExtendedOTSvsOriginalOTs(512,1048576,256,128,2048);
+    //int m = 1024;
     //auto start = high_resolution_clock::now();
     //doMExtendedOTs(m,256,128,2048);
     //auto stop = high_resolution_clock::now();
     //auto duration = duration_cast<seconds>(stop - start);
     //cout <<"###OTamount: " << m<<" in "  << duration.count() << " seconds" << endl;
     //cout << endl;
+
     return 0;
 }
 
