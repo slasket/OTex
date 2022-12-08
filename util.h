@@ -22,7 +22,7 @@ public:
     static vector<uint64_t> mbitXOR(vector<uint64_t> &pInt, vector<uint64_t> &pInt1);
     static vector<vector<uint64_t>> transposeMatrix(vector<vector<uint64_t>>& matrix);
     static int findithBit(vector<uint64_t> ui, int i);
-    static tuple<uint64_t, uint64_t> AES128CounterMode(tuple<uint64_t, uint64_t> plaintext);
+    static tuple<uint64_t, uint64_t> AES128CounterMode(tuple<uint64_t, uint64_t> plaintext, int counter);
     static string bin2str(const string &t_);
 
     static tuple<uint64_t, uint64_t> str2bin(string t_);

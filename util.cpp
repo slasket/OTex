@@ -94,7 +94,7 @@ vector<uint64_t> util::extendKey(const tuple<uint64_t, uint64_t>& key, int m) {
     vector<uint64_t> res = vector<uint64_t>(size);
     int counter = 0;
     for (int i = 0; i < size; i = i + 2) {
-        auto keyi = AES128CounterMode(key);
+        auto keyi = AES128CounterMode(key, i);
         res[i] = get<0>(keyi);
         res[i+1] = get<1>(keyi);
         if(res[i] == res[i+1]){
@@ -272,9 +272,10 @@ string util::printBitsetofVectorofUints(vector<uint64_t> uints){
 }
 
 //AES-128 counter mode encryption
-tuple<uint64_t, uint64_t> util::AES128CounterMode(tuple<uint64_t, uint64_t> key) {
+tuple<uint64_t, uint64_t> util::AES128CounterMode(tuple<uint64_t, uint64_t> key, int counter) {
     word32 seed = 0x12345678; //TODO: change to random
     LC_RNG prng = LC_RNG(seed);
+    //AutoSeededRandomPool prng;
     string plaintext = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
     //convert key to CryptoPP::byte
@@ -296,6 +297,10 @@ tuple<uint64_t, uint64_t> util::AES128CounterMode(tuple<uint64_t, uint64_t> key)
 
     CryptoPP::byte ctr[ AES::BLOCKSIZE ];
     prng.GenerateBlock( ctr, sizeof(ctr) );
+    //add counter to ctr
+    for (int i = 0; i < 4; ++i) {
+        ctr[i] = (counter >> (8 * i)) & 0xFF;
+    }
 
 
     //convert plaintext to bitset
