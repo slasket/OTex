@@ -167,7 +167,7 @@ int main() {
 
 
     fromVtoKExtendedOTs(512,1048576,256,128,2048);
-    //int m = 1024;
+    int m = 1024;
     //auto start = high_resolution_clock::now();
     //doMExtendedOTs(m,256,128,2048);
     //auto stop = high_resolution_clock::now();
