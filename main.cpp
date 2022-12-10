@@ -208,9 +208,7 @@ void testExtendedOTSvsOriginalOTs(int v, int k ,int l, int symmetricKeySize, int
         // get duration. To cast it to proper unit
         // use duration cast method
         auto duration = duration_cast<seconds>(stop - start);
-        cout << endl;
         cout <<"#OTamount: " << j<<" in "  << duration.count() << " seconds" << endl;
-        cout << endl;
 
     }
 
@@ -223,9 +221,9 @@ int main() {
     //testMatrixTransposistion();
 
 
-    //fromVtoKExtendedOTs(512,1048576,256,128,2048);
-    testExtendedOTSvsOriginalOTs(512,1048576,256,128,2048);
-    //int m = 1024;
+    fromVtoKExtendedOTs(1048576,8388608,256,128,2048);
+    //testExtendedOTSvsOriginalOTs(512,1048576,256,128,2048);
+    //int m = 65536;
     //auto start = high_resolution_clock::now();
     //doMExtendedOTs(m,256,128,2048);
     //auto stop = high_resolution_clock::now();
@@ -244,10 +242,8 @@ void testMatrixTransposistion() {
     for (int i = 0; i < 64; ++i) {
         if (i %2 ==0){
         simpleTestmat[i][0] = UINT64_MAX;
-        //simpleTestmat[i][1] = UINT64_MAX;
         }else{
         simpleTestmat[i][0] = 0;
-        //simpleTestmat[i][1] = 0;
         }
     }
     auto sameMatButdifferent =simpleTestmat;
@@ -270,7 +266,6 @@ void testMatrixTransposistion() {
     cout<< res[0].size()<<endl;
     cout<<res.size()<<endl;
     auto a = res[0];
-
 
     assert(res[0].size()==(keysize/64));
     assert(res.size()==(m));
