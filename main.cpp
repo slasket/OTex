@@ -221,7 +221,7 @@ int main() {
     //testMatrixTransposistion();
 
 
-    fromVtoKExtendedOTs(1048576,8388608,256,128,2048);
+    fromVtoKExtendedOTs(512,1048576,256,128,2048);
     //testExtendedOTSvsOriginalOTs(512,1048576,256,128,2048);
     //int m = 65536;
     //auto start = high_resolution_clock::now();
